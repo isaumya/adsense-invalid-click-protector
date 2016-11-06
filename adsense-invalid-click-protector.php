@@ -31,13 +31,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
+/* Let's include the setup and admin setup files */
+include_once plugin_dir_path( __FILE__ ) . 'inc/setup.php';
+include_once plugin_dir_path( __FILE__ ) . 'inc/admin_setup.php';
+
 /* Define Constants */
 define( 'AICP_BASE', plugin_basename(__FILE__) );
 
 /* Let's handle the plugin setup */
-register_activation_hook(   __FILE__, array( 'AICP_SETUP', 'on_activation' ) );
-register_deactivation_hook( __FILE__, array( 'AICP_SETUP', 'on_deactivation' ) );
-register_uninstall_hook(    __FILE__, array( 'AICP_SETUP', 'on_uninstall' ) );
+register_activation_hook( __FILE__, array( 'AICP_SETUP', 'on_activation' ) );
+//register_deactivation_hook( __FILE__, array( 'AICP_SETUP', 'on_deactivation' ) );
+register_uninstall_hook( __FILE__, array( 'AICP_SETUP', 'on_uninstall' ) );
 
 add_action( 'plugins_loaded', array( 'AICP', 'get_instance' ) );
 /* Main Class for AICP aka AdSense Invalic Click Protector */
@@ -74,14 +78,28 @@ class AICP {
      * Initializes the plugin by setting localization, filters, and administration functions.
      */
     private function __construct() {
+    	global $wpdb;
     	//Set the Table name
     	$this->table_name = $wpdb->prefix . 'adsense_invalid_click_protector';
 
-    	// Let's load the setup file under /inc/ folder
-    	add_action( current_filter(), array( $this, 'load_files' ), 30 );
-
     	// Let's load the styles and scripts now
     	add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ) );
+    	add_action( 'wp_ajax_process_data', array( $this, 'process_data' ) );
+		add_action( 'wp_ajax_nopriv_process_data', array( $this, 'process_data' ) );
+
+		// Handeling the calls for wp-admin side
+		add_action( 'admin_enqueue_scripts', array( 'AICP_ADMIN', 'admin_scripts' ) );
+		add_action( 'wp_dashboard_setup', array( 'AICP_ADMIN', 'aicp_dashboard' ) );
+		/* First lets initialize an admin settings link inside WP dashboard */
+		/* It will show under the SETTINGS section */
+		add_action( 'admin_menu', array( 'AICP_ADMIN', 'create_admin_menu' ) );
+		// Register page options
+    	add_action( 'admin_init', array( 'AICP_ADMIN', 'register_page_options' ) );
+    	// Admin notice
+    	add_action( 'admin_notices', array( 'AICP_ADMIN', 'show_admin_notice' ) );
+
+    	// Inserting the wordpress proper dismissal class
+		add_action( 'admin_init', array( 'PAnD', 'init' ) );
     }
   
     /*--------------------------------------------*
@@ -122,21 +140,21 @@ class AICP {
     }
 
     /**
-     * Function to load the setup file
-     * @return Nothing
-    **/
-    public function load_files() {
-    	foreach ( glob( plugin_dir_path( __FILE__ ).'inc/*.php' ) as $file ) {
-            include_once $file;
-    	}
-    }
-
-    /**
      * Function to load styles & scripts
      * @return Nothing
     **/
     public function load_scripts() {
-    	wp_enqueue_script( 'aicp', plugins_url( '/assets/js/aicp.js' , __FILE__ ) , array( 'jquery' ) );
+    	/* Create an Object of the AICP_ADMIN class to fetch some data */
+    	$aicpAdminOBJ = new AICP_ADMIN();
+    	/* Call the Fetch Data method from the admin class to get the updated result */
+    	$aicpAdminOBJ->fetch_data();
+
+    	/* JS */
+    	wp_register_script( 'js-cookie', plugins_url( '/assets/js/js.cookie.js' , __FILE__ ) );
+    	wp_enqueue_script( 'js-cookie' );
+
+    	wp_register_script( 'aicp', plugins_url( '/assets/js/aicp.js' , __FILE__ ) , array( 'jquery' ) );
+    	wp_enqueue_script( 'aicp' );
     	$country_data = $this->visitor_country( $this->visitor_ip() );
     	wp_localize_script( 
     		'aicp', //id
@@ -146,7 +164,11 @@ class AICP {
 	    		'nonce' => wp_create_nonce( "aicp_nonce" ),
 	    		'ip' => $this->visitor_ip(),
 	    		'countryName' => $country_data['name'],
-	    		'countryCode' => $country_data['code']
+	    		'countryCode' => $country_data['code'],
+	    		'clickLimit' => $aicpAdminOBJ->click_limit,
+	    		'banDuration' => $aicpAdminOBJ->ban_duration,
+	    		'countryBlockCheck' => $aicpAdminOBJ->country_block_check,
+	    		'banCountryList' => $aicpAdminOBJ->ban_country_list
     		) // all data that are being passed to the js file
     	);
     }
@@ -187,12 +209,39 @@ class AICP {
 
 function aicp_can_see_ads() {
 	global $wpdb;
+	$flag = 0;
 	$aicpOBJ = new AICP();
 	$visitorIP = $aicpOBJ->visitor_ip();
 
 	// Checking if the visitor's IP is in our block list
 	$match = $wpdb->get_var( "SELECT COUNT(id) FROM $aicpOBJ->table_name WHERE ip  = $visitorIP " );
 
+	$country_data = $aicpOBJ->visitor_country( $visitorIP );
+	$visitor_country = $country_data['code'];
+
+	$fetched_data = get_option( 'aicp_settings_options' );
+	$blocked_countries = trim( $fetched_data['ban_country_list'] );
+	$blocked_country = explode( ',', $blocked_countries );
+
+	//This section will run when the country ban is enabled
+	if( !empty( $blocked_countries ) && $fetched_data["country_block_check"] == 'Yes' ) {
+		foreach ( $blocked_country as $key => $value ) {
+			if( $value == $visitor_country ) {
+				$flag++;
+			}
+		}
+		if( $flag > 0 ) { // This means that the user is visiting the site from a banned country
+			return false; // No visitor cannot see ads as he is in our block list
+		} else { // This means that the iser is not visiting from a banned country
+			if( $match > 0 ) { //So, it's time to check if the visitor's IP is blocked or not
+				return false; // No visitor cannot see ads as he is in our block list
+			} else {
+				return true; // Yes, he can
+			}
+		}
+	}
+
+	//This section will run when there is no country ban, so there is only IP based ban
 	if( $match > 0 ) {
 		return false; // No visitor cannot see ads as he is in our block list
 	} else {
