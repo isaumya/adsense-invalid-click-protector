@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: AdSense Invalic Click Protector
+Plugin Name: AdSense Invalid Click Protector
 Plugin URI: https://www.isaumya.com/portfolio-item/wp-server-stats/
 Description: A WordPress plugin to protect your AdSense ads from unusual click bombings and invalid clicks
 Author: Saumya Majumder
@@ -87,16 +87,17 @@ class AICP {
     	add_action( 'wp_ajax_process_data', array( $this, 'process_data' ) );
 		add_action( 'wp_ajax_nopriv_process_data', array( $this, 'process_data' ) );
 
+		$aicpAdminOBJ = new AICP_ADMIN;
 		// Handeling the calls for wp-admin side
-		add_action( 'admin_enqueue_scripts', array( 'AICP_ADMIN', 'admin_scripts' ) );
-		add_action( 'wp_dashboard_setup', array( 'AICP_ADMIN', 'aicp_dashboard' ) );
+		add_action( 'admin_enqueue_scripts', array( $aicpAdminOBJ, 'admin_scripts' ) );
+		add_action( 'wp_dashboard_setup', array( $aicpAdminOBJ, 'aicp_dashboard' ) );
 		/* First lets initialize an admin settings link inside WP dashboard */
 		/* It will show under the SETTINGS section */
-		add_action( 'admin_menu', array( 'AICP_ADMIN', 'create_admin_menu' ) );
+		add_action( 'admin_menu', array( $aicpAdminOBJ, 'create_admin_menu' ) );
 		// Register page options
-    	add_action( 'admin_init', array( 'AICP_ADMIN', 'register_page_options' ) );
+    	add_action( 'admin_init', array( $aicpAdminOBJ, 'register_page_options' ) );
     	// Admin notice
-    	add_action( 'admin_notices', array( 'AICP_ADMIN', 'show_admin_notice' ) );
+    	add_action( 'admin_notices', array( $aicpAdminOBJ, 'show_admin_notice' ) );
 
     	// Inserting the wordpress proper dismissal class
 		add_action( 'admin_init', array( 'PAnD', 'init' ) );
