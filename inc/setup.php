@@ -30,6 +30,10 @@ class AICP_SETUP
 		dbDelta( $sql );
 		//Lets save our database option
 		add_option( 'aicp_db_ver', $aicp_db_ver );
+		//Creating the scheduled job to delete stuffs which is more than 7 days old
+		if ( ! wp_next_scheduled ( 'aicp_hourly_cleanup' ) ) {
+			wp_schedule_event( time(), 'hourly', 'aicp_hourly_cleanup' );
+	    }
     }
 
     public static function on_uninstall() {
@@ -48,5 +52,7 @@ class AICP_SETUP
 	    $wpdb->query($sql);
 
 	    delete_option('aicp_db_ver');
+
+	    wp_clear_scheduled_hook('aicp_hourly_cleanup');
     }
 }

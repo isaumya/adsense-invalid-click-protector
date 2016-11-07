@@ -3,13 +3,14 @@ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 //Requiring the persistent notice remaval code
 require_once plugin_dir_path( __FILE__ ) . '../vendor/persist-admin-notices-dismissal/persist-admin-notices-dismissal.php';
+require_once plugin_dir_path( __FILE__ ) . 'banned_user_table.php';
 
 class AICP_ADMIN {
 
 	/* Let's declare some variables that we are going to use all around our code to fetch data 
 	 * As we are going to this variables at variour part of our code we are using public statement instead of protected
 	**/
-	public $click_limit, $ban_duration, $country_block_check, $ban_country_list;
+	public $click_limit, $click_counter_cookie_exp, $ban_duration, $country_block_check, $ban_country_list;
 
 	/**
      * Function to load CSS & JS files at the admin side
@@ -32,32 +33,32 @@ class AICP_ADMIN {
     **/
     public function create_admin_menu() {
     	add_menu_page( 
-				__( 'AdSense Invalid Click Protector', 'aicp' ), 
-				__( 'AdSense Invalid Click Protector', 'aicp' ), 
-				'manage_options', 
-				'aicp_settings', 
-				'', 
-				'dashicons-shield', 
-				81
-			);
+    		__( 'AdSense Invalid Click Protector', 'aicp' ), 
+    		__( 'AdSense Invalid Click Protector', 'aicp' ), 
+    		'manage_options', 
+    		'aicp_settings', 
+    		'', 
+    		'dashicons-shield', 
+    		81
+    	);
 
-			add_submenu_page( 
-				'aicp_settings', 
-				__( 'AdSense Invalid Click Protector - General Settings', 'aicp' ), 
-				__( 'General Settings', 'aicp' ), 
-				'manage_options', 
-				'aicp_settings', 
-				array( __CLASS__, 'admin_settings_page' )
-			);
+    	add_submenu_page( 
+    		'aicp_settings', 
+    		__( 'AdSense Invalid Click Protector - General Settings', 'aicp' ), 
+    		__( 'General Settings', 'aicp' ), 
+    		'manage_options', 
+    		'aicp_settings', 
+    		array( $this, 'admin_settings_page' )
+    	);
 
-			add_submenu_page( 
-				'aicp_settings', 
-				__( 'AICP - Banned User Details', 'aicp' ), 
-				__( 'PHP Information', 'aicp' ), 
-				'Banned User Details', 
-				'aicp_banned_user_details', 
-				array( __CLASS__, 'banned_user_details' )
-			);
+    	add_submenu_page( 
+    		'aicp_settings', 
+    		__( 'AICP - Banned User Details', 'aicp' ), 
+    		__( 'Banned User Details', 'aicp' ), 
+    		'manage_options', 
+    		'aicp_banned_user_details', 
+    		array( $this, 'banned_user_details' )
+    	);
     }
 
     /**
@@ -101,7 +102,7 @@ class AICP_ADMIN {
     				do_settings_sections('aicp_settings');
     				submit_button();
 
-    				//var_dump($this);
+    				print_r( get_option( 'aicp_settings_options' ) );
     				?>
     			</form>
     		</div>
@@ -154,22 +155,25 @@ class AICP_ADMIN {
     **/
     public function register_page_options() {
     	// Add Section for option fields
-		add_settings_section( 'aicp_section', __( 'Change the AdSense Invalid Click Protector Settings', 'aicp' ), array( __CLASS__, 'display_section' ), 'aicp_settings' ); // id, title, display cb, page
+		add_settings_section( 'aicp_section', __( 'Change the AdSense Invalid Click Protector Settings', 'aicp' ), array( $this, 'display_section' ), 'aicp_settings' ); // id, title, display cb, page
 
 		// Add Field for the Click Limit
-		add_settings_field( 'aicp_click_limit', __( 'Set the Ad Click Limit', 'aicp' ), array( __CLASS__, 'click_limit_field' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
+		add_settings_field( 'aicp_click_limit', __( 'Set the Ad Click Limit', 'aicp' ), array( $this, 'click_limit_field' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
+
+		// Add Field for the Cookie Expiration of Click Counter
+		add_settings_field( 'aicp_click_cookie_expiration', __( 'Click Counter Cooke Expiration Time (default: 3 hours)', 'aicp' ), array( $this, 'click_cookie_expiration' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
 
 		// Add Field for the Ban Duration (in days)
-		add_settings_field( 'aicp_ban_duration', __( 'Set the Visitor Ban Duration (default: 7 days)', 'aicp' ), array( __CLASS__, 'ban_duration_field' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
+		add_settings_field( 'aicp_ban_duration', __( 'Set the Visitor Ban Duration (default: 7 days)', 'aicp' ), array( $this, 'ban_duration_field' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
 
 		// Add Field for checking if the user wanna ban any specific country
-		add_settings_field( 'aicp_country_block_check', __( 'Do you want to block showing ads for some specific countries?', 'aicp' ), array( __CLASS__, 'country_block_check_field' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
+		add_settings_field( 'aicp_country_block_check', __( 'Do you want to block showing ads for some specific countries?', 'aicp' ), array( $this, 'country_block_check_field' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
 
 		// Add Field for selecting countries for which you wanna ban ads
-		add_settings_field( 'aicp_country_list', __( 'Banned Country List - Put ISO ALPHA-2 Country Codes (Comma Seperated)', 'aicp' ), array( __CLASS__, 'country_list_field' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
+		add_settings_field( 'aicp_country_list', __( 'Banned Country List - Put ISO ALPHA-2 Country Codes (Comma Seperated)', 'aicp' ), array( $this, 'country_list_field' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
 
 		// Register Settings
-		register_setting( 'aicp_settings', 'aicp_settings_options', array( __CLASS__, 'validate_options' ) ); // option group, option name, sanitize cb 
+		register_setting( 'aicp_settings', 'aicp_settings_options', array( $this, 'validate_options' ) ); // option group, option name, sanitize cb 
     }
 
     /**
@@ -186,20 +190,34 @@ class AICP_ADMIN {
 	}
 
 	/**
+	 * Callback function for showing the click counter cookie expiration field
+	**/
+	public function click_cookie_expiration() {
+		$this->fetch_data();
+		echo '<input type="number" name="aicp_settings_options[click_counter_cookie_exp]" value="' . $this->click_counter_cookie_exp . '" /><span>   ' . __( 'Hour/s', 'aicp' ) . '</span>';
+	}
+
+	/**
 	 * Callback function for showing the ban duration field
 	**/
 	public function ban_duration_field() {
 		$this->fetch_data();
-		echo '<input type="number" name="aicp_settings_options[ban_duration]" value="' . $this->ban_duration . '" />';
+		echo '<input type="number" name="aicp_settings_options[ban_duration]" value="' . $this->ban_duration . '" /><span>   ' . __( 'Day/s', 'aicp' ) . '</span>';
 	}
 
 	/**
 	 * Callback function for showing the country ban check field
 	**/
 	public function country_block_check_field() {
+		$this->fetch_data();
 		$options = get_option( 'aicp_settings_options' );
-		echo '<input type="radio" name="aicp_settings_options[country_block_check]" value="Yes" ' . checked( 'Yes' == $options['country_block_check'] ) . ' /> Yes
-		<input type="radio" name="aicp_settings_options[country_block_check]" value="No" ' . checked( 'No' == $options['country_block_check'] ) . ' /> No';
+		?>
+		<input type="radio" name="aicp_settings_options[country_block_check]" value="Yes" <?php checked( empty( $options['country_block_check'] ) ? $this->country_block_check : $options['country_block_check'], 'Yes' ) ?> /> 
+		<span><?php _e( 'Yes', 'aicp' ); ?></span>
+		
+		<input type="radio" name="aicp_settings_options[country_block_check]" value="No" <?php checked( empty( $options['country_block_check'] ) ? $this->country_block_check : $options['country_block_check'], 'No' ) ?> /> 
+		<span><?php _e( 'No', 'aicp' ); ?></span>
+		<?php
 	}
 
 	/**
@@ -227,19 +245,29 @@ class AICP_ADMIN {
 	 * Callback function for validating the inputes
 	**/
 	public function validate_options( $fields ) {
+		$this->fetch_data();
 		$valid_fields = array();
 
-		// Validate Title Field
 		$valid_fields['click_limit'] = strip_tags( stripslashes( trim( $fields['click_limit'] ) ) );
 
 		if( $valid_fields['click_limit'] < 1 || ( is_numeric( $valid_fields['click_limit'] ) === FALSE ) ) {
+			$valid_fields['click_limit'] = $this->click_limit;
 			// Set the error message
 			add_settings_error( 'aicp_settings_options', 'aicp_click_limit_error', __( 'The minimum number of click limit must needs to be more than or equals to 1 and the entered value must be a number', 'aicp' ), 'error' ); // $setting, $code, $message, $type
+		}
+
+		$valid_fields['click_counter_cookie_exp'] = strip_tags( stripslashes( trim( $fields['click_counter_cookie_exp'] ) ) );
+
+		if( $valid_fields['click_counter_cookie_exp'] < 1 || ( is_numeric( $valid_fields['click_counter_cookie_exp'] ) === FALSE ) ) {
+			$valid_fields['click_counter_cookie_exp'] = $this->click_counter_cookie_exp;
+			// Set the error message
+			add_settings_error( 'aicp_settings_options', 'aicp_click_counter_cookie_exp_error', __( 'The click counter cookie expiration time must be a number and cannot be less than 1 hour', 'aicp' ), 'error' ); // $setting, $code, $message, $type
 		}
 
 		$valid_fields['ban_duration'] = strip_tags( stripslashes( trim( $fields['ban_duration'] ) ) );
 
 		if( $valid_fields['ban_duration'] < 1 || ( is_numeric( $valid_fields['ban_duration'] ) === FALSE ) ) {
+			$valid_fields['ban_duration'] = $this->ban_duration;
 			// Set the error message
 			add_settings_error( 'aicp_settings_options', 'aicp_ban_ducation_error', __( 'The user ban duration must needs to be more than or equals to 1 day & the entered value must be a number', 'aicp' ), 'error' ); // $setting, $code, $message, $type
 		}
@@ -247,6 +275,7 @@ class AICP_ADMIN {
 		$valid_fields['country_block_check'] = strip_tags( stripslashes( trim( $fields['country_block_check'] ) ) );
 
 		if( !( $valid_fields['country_block_check'] == 'Yes' || $valid_fields['country_block_check'] == 'No' ) ) {
+			$valid_fields['country_block_check'] = $this->country_block_check;
 			// Set the error message
 			add_settings_error( 'aicp_settings_options', 'aicp_country_block_check_error', __( 'You are trying to pass some value that it is not supposed to get. Don\'t try nasty hacking approaches', 'aicp' ), 'error' ); // $setting, $code, $message, $type
 		}
@@ -265,6 +294,7 @@ class AICP_ADMIN {
 
 		if( empty( $fetched_data ) ) {
 			$this->click_limit = 3; //default click limit is 3
+			$this->click_counter_cookie_exp = 3; //default click counter cookie expiration time is 3 HOURS
 			$this->ban_duration = 7; //default ban duration is 7 days
 			$this->country_block_check = 'No'; //default state is No
 			$this->ban_country_list = ''; //default state is a blank string
@@ -274,6 +304,12 @@ class AICP_ADMIN {
 				$this->click_limit = 3; //default click limit is 3
 			} else {
 				$this->click_limit = $fetched_data['click_limit'];
+			}
+			//click_counter_cookie_exp
+			if( empty( $fetched_data['click_counter_cookie_exp'] ) ) {
+				$this->click_counter_cookie_exp = 3; //default click counter cookie expiration time is 3 HOURS
+			} else {
+				$this->click_counter_cookie_exp = $fetched_data['click_counter_cookie_exp'];
 			}
 			//ban_duration
 			if( empty( $fetched_data['ban_duration'] ) ) {
@@ -297,11 +333,84 @@ class AICP_ADMIN {
 	}
 
 	/**
+	 * Callback function run the hourly cleanup job to deloete all visitors which are 
+	 * blocked more than 7 days
+	**/
+	public function do_this_hourly() {
+		global $wpdb;
+		$this->fetch_data();
+		$aicpOBJ = new AICP();
+		$wpdb->query( 
+			$wpdb->prepare( 
+				"
+		        DELETE FROM $aicpOBJ->table_name
+				WHERE timestamp < UNIX_TIMESTAMP( DATE_SUB( NOW(), INTERVAL $this->ban_duration DAY ) )
+				"
+		    )
+		);
+	}
+
+    public function delete_notice( $state ) {
+    	if( $state === true ) {
+    		$class = 'notice notice-success';
+			$message = __( 'The selected item has been successfully deleted.', 'aicp' );
+
+			printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); 
+    	} else {
+    		$class = 'notice notice-error';
+			$message = __( 'Please select atleast one row before processing the delete option.', 'aicp' );
+
+			printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
+    	}
+    }
+
+	/**
 	 * Callback function show up the banned user details page
 	**/
 	public function banned_user_details() {
+		/* Let's handel the bulk and single deletion process first
+		 * before showing the table data
+		**/
+		$bannedUserTableOBJ = new AICP_BANNED_USER_TABLE();
+		$aicpOBJ = new AICP();
+		if( 'delete'=== $bannedUserTableOBJ->current_action() ) {
+        	global $wpdb;
+        	$fetchedID = $_REQUEST['id'];
+        	if( is_array( $fetchedID ) ) { // for bulk operation arry will return
+        		$selectedID = implode( ",", $fetchedID );
+        	} else { //for singel delete just the id will return
+        		$selectedID = $fetchedID;
+        	}
+        	if( empty( $selectedID ) ) {
+        		$this->delete_notice( false );
+        	} else {
+        		$wpdb->query( 
+					$wpdb->prepare( 
+						"
+				        DELETE FROM $aicpOBJ->table_name
+						WHERE id IN ( %d )
+						",
+						$selectedID
+				    )
+				);
+				$this->delete_notice( true );
+        	}
+        }
+        /* End of handelling the deletion process */
+        /* Now it's time to show our data */
 		?>
 		<div class="wrap">
+			<h1>Example</h1>
+			<?php
+				$bannedUserTableOBJ->prepare_items(); 
+			?>
+			<form method="post">
+		    	<input type="hidden" name="page" value="aicp_banned_user_details">
+				<?php
+					$bannedUserTableOBJ->search_box( 'search', 'search_id' );
+					$bannedUserTableOBJ->display(); 
+				?>
+			</form>
 		</div>
 		<?php
 	}

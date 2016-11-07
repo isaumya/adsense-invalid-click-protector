@@ -31,9 +31,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
-/* Let's include the setup and admin setup files */
-include_once plugin_dir_path( __FILE__ ) . 'inc/setup.php';
-include_once plugin_dir_path( __FILE__ ) . 'inc/admin_setup.php';
+/* Let's include the all the setup files */
+foreach ( glob( plugin_dir_path( __FILE__ ).'inc/*.php' ) as $file ) {
+	include_once $file;
+}
 
 /* Define Constants */
 define( 'AICP_BASE', plugin_basename(__FILE__) );
@@ -77,7 +78,7 @@ class AICP {
     /**
      * Initializes the plugin by setting localization, filters, and administration functions.
      */
-    private function __construct() {
+    public function __construct() {
     	global $wpdb;
     	//Set the Table name
     	$this->table_name = $wpdb->prefix . 'adsense_invalid_click_protector';
@@ -87,7 +88,7 @@ class AICP {
     	add_action( 'wp_ajax_process_data', array( $this, 'process_data' ) );
 		add_action( 'wp_ajax_nopriv_process_data', array( $this, 'process_data' ) );
 
-		$aicpAdminOBJ = new AICP_ADMIN;
+		$aicpAdminOBJ = new AICP_ADMIN();
 		// Handeling the calls for wp-admin side
 		add_action( 'admin_enqueue_scripts', array( $aicpAdminOBJ, 'admin_scripts' ) );
 		add_action( 'wp_dashboard_setup', array( $aicpAdminOBJ, 'aicp_dashboard' ) );
@@ -98,6 +99,8 @@ class AICP {
     	add_action( 'admin_init', array( $aicpAdminOBJ, 'register_page_options' ) );
     	// Admin notice
     	add_action( 'admin_notices', array( $aicpAdminOBJ, 'show_admin_notice' ) );
+    	// Hourly cleanup job to delete blocked users which is more than 7 days
+    	add_action( 'aicp_hourly_cleanup', array( $aicpAdminOBJ, 'do_this_hourly' ) );
 
     	// Inserting the wordpress proper dismissal class
 		add_action( 'admin_init', array( 'PAnD', 'init' ) );
@@ -151,10 +154,10 @@ class AICP {
     	$aicpAdminOBJ->fetch_data();
 
     	/* JS */
-    	wp_register_script( 'js-cookie', plugins_url( '/assets/js/js.cookie.js' , __FILE__ ) );
+    	wp_register_script( 'js-cookie', plugins_url( '/assets/js/js.cookie.js' , __FILE__ ), array(), '2.1.3', true );
     	wp_enqueue_script( 'js-cookie' );
 
-    	wp_register_script( 'aicp', plugins_url( '/assets/js/aicp.js' , __FILE__ ) , array( 'jquery' ) );
+    	wp_register_script( 'aicp', plugins_url( '/assets/js/aicp.js' , __FILE__ ) , array( 'jquery' ), '1.0', true );
     	wp_enqueue_script( 'aicp' );
     	$country_data = $this->visitor_country( $this->visitor_ip() );
     	wp_localize_script( 
@@ -167,6 +170,7 @@ class AICP {
 	    		'countryName' => $country_data['name'],
 	    		'countryCode' => $country_data['code'],
 	    		'clickLimit' => $aicpAdminOBJ->click_limit,
+	    		'clickCounterCookieExp' => $aicpAdminOBJ->click_counter_cookie_exp,
 	    		'banDuration' => $aicpAdminOBJ->ban_duration,
 	    		'countryBlockCheck' => $aicpAdminOBJ->country_block_check,
 	    		'banCountryList' => $aicpAdminOBJ->ban_country_list
@@ -200,6 +204,7 @@ class AICP {
 			) 
 		);
     }
+
 } // AICP Class Ends
 
 /**
@@ -211,13 +216,13 @@ class AICP {
 function aicp_can_see_ads() {
 	global $wpdb;
 	$flag = 0;
+	$match = 22;
 	$aicpOBJ = new AICP();
 	$visitorIP = $aicpOBJ->visitor_ip();
 
-	// Checking if the visitor's IP is in our block list
-	$match = $wpdb->get_var( "SELECT COUNT(id) FROM $aicpOBJ->table_name WHERE ip  = $visitorIP " );
+	$match = $wpdb->get_var( "SELECT COUNT(id) FROM $aicpOBJ->table_name WHERE ip = '$visitorIP'" );
 
-	$country_data = $aicpOBJ->visitor_country( $visitorIP );
+	$country_data = $aicpOBJ->visitor_country( $aicpOBJ->visitor_ip() );
 	$visitor_country = $country_data['code'];
 
 	$fetched_data = get_option( 'aicp_settings_options' );
@@ -225,9 +230,9 @@ function aicp_can_see_ads() {
 	$blocked_country = explode( ',', $blocked_countries );
 
 	//This section will run when the country ban is enabled
-	if( !empty( $blocked_countries ) && $fetched_data["country_block_check"] == 'Yes' ) {
+	if( ( !empty( $blocked_countries ) ) && $fetched_data["country_block_check"] == 'Yes' ) {
 		foreach ( $blocked_country as $key => $value ) {
-			if( $value == $visitor_country ) {
+			if( trim( $value ) == $visitor_country ) {
 				$flag++;
 			}
 		}
@@ -240,12 +245,12 @@ function aicp_can_see_ads() {
 				return true; // Yes, he can
 			}
 		}
-	}
-
-	//This section will run when there is no country ban, so there is only IP based ban
-	if( $match > 0 ) {
-		return false; // No visitor cannot see ads as he is in our block list
 	} else {
-		return true; // Yes, he can
+		//This section will run when there is no country ban, so there is only IP based ban
+		if( $match > 0 ) {
+			return false; // No visitor cannot see ads as he is in our block list
+		} else {
+			return true; // Yes, he can
+		}
 	}
 }
