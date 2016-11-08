@@ -1,0 +1,239 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AdSense Invalid Click Protector\n"
+"POT-Creation-Date: 2016-11-09 00:32+0530\n"
+"PO-Revision-Date: 2016-11-09 00:34+0530\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.8.8\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: adsense-invalid-click-protector.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: inc/admin_setup.php:51
+msgid "Total no. of Blocked Users"
+msgstr ""
+
+#: inc/admin_setup.php:54
+msgid "Blocked Users in last 24 hrs"
+msgstr ""
+
+#: inc/admin_setup.php:57
+msgid "Blocked Users in last 6 hrs"
+msgstr ""
+
+#: inc/admin_setup.php:60
+msgid "Check All Banned User Details"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+#: inc/admin_setup.php:72 inc/admin_setup.php:73
+msgid "AdSense Invalid Click Protector"
+msgstr ""
+
+#: inc/admin_setup.php:83
+msgid "AdSense Invalid Click Protector - General Settings"
+msgstr ""
+
+#: inc/admin_setup.php:84
+msgid "General Settings"
+msgstr ""
+
+#: inc/admin_setup.php:92
+msgid "AICP - Banned User Details"
+msgstr ""
+
+#: inc/admin_setup.php:93 inc/admin_setup.php:420
+msgid "Banned User Details"
+msgstr ""
+
+#: inc/admin_setup.php:112
+#, php-format
+msgid ""
+"%1$sThank you%2$s for installing %1$sAdSense Invalid Click Protector%2$s. It "
+"took countless hours to code, design and test to make this plugin a reality. "
+"But as this is a <strong>free plugin</strong>, all of these time and effort "
+"does not generate any revenue. Also as I'm not a very privileged person, so "
+"earning revenue matters to me for keeping my lights on and keep me motivated "
+"to do the work I love. %3$s So, if you enjoy this plugin and understand the "
+"huge effort I put into this, please consider %1$s%4$sdonating some amount"
+"%5$s (no matter how small)%2$s for keeping aliave the development of this "
+"plugin. Thank you again for using my plugin. Also if you love using this "
+"plugin, I would really appiciate if you take 2 minutes out of your busy "
+"schedule to %1$s%6$sshare your review%7$s%2$s about this plugin."
+msgstr ""
+
+#: inc/admin_setup.php:129
+msgid "AdSense Invalid Click Protector Settings"
+msgstr ""
+
+#: inc/admin_setup.php:130
+msgid ""
+"On this page you will be able to change some critical settings of AdSense "
+"Invalid Click Protector a.k.a AICP"
+msgstr ""
+
+#: inc/admin_setup.php:131
+msgid ""
+"Please note the below form uses HTML5, so, make sure you are using any of "
+"the HTML5 compliance browsers like IE v11+, Microsoft Edge, Chrome v49+, "
+"Firefix v47+, Safari v9.1+, Opera v39+"
+msgstr ""
+
+#: inc/admin_setup.php:148
+msgid "Video Demonstration About the Plugin Usage"
+msgstr ""
+
+#: inc/admin_setup.php:151
+#, php-format
+msgid ""
+"Hi there, %1$splease take a look at the detailed video demonstration below"
+"%2$s where I've explained everything about how the plugin works and it's "
+"various settings. Before actually start using this plugin, I will highly "
+"recommend you to spend some time to watch the video for once. It will make "
+"everything clear. If you still got any question, fell free to ask then in "
+"the %3$sWordPress support Forum%4$s."
+msgstr ""
+
+#: inc/admin_setup.php:153
+msgid "Support the plugin"
+msgstr ""
+
+#: inc/admin_setup.php:154
+msgid ""
+"Believe it or not, developing a WorPress plugin really takes quite a lot of "
+"time to develop, test and to do continuous bugfix. Moreover as I'm sharing "
+"this plugin for free, so all those times I've spent coding this plugin yeild "
+"no revenue. So, overtime it become really hard to keep spending time on this "
+"plugin. So, if you like this plugin, I will really appriciate if you "
+"consider donating some amount for this plugin. Which will help me keep "
+"spending time on this plugin and make it even better. Please donate, if you "
+"can."
+msgstr ""
+
+#: inc/admin_setup.php:179
+msgid "Change the AdSense Invalid Click Protector Settings"
+msgstr ""
+
+#: inc/admin_setup.php:182
+msgid "Set the Ad Click Limit"
+msgstr ""
+
+#: inc/admin_setup.php:185
+msgid "Click Counter Cooke Expiration Time (default: 3 hours)"
+msgstr ""
+
+#: inc/admin_setup.php:188
+msgid "Set the Visitor Ban Duration (default: 7 days)"
+msgstr ""
+
+#: inc/admin_setup.php:191
+msgid "Do you want to block showing ads for some specific countries?"
+msgstr ""
+
+#: inc/admin_setup.php:194
+msgid "Banned Country List - Put ISO ALPHA-2 Country Codes (Comma Seperated)"
+msgstr ""
+
+#: inc/admin_setup.php:218
+msgid "Hour/s"
+msgstr ""
+
+#: inc/admin_setup.php:226
+msgid "Day/s"
+msgstr ""
+
+#: inc/admin_setup.php:237
+msgid "Yes"
+msgstr ""
+
+#: inc/admin_setup.php:240
+msgid "No"
+msgstr ""
+
+#: inc/admin_setup.php:255
+#, php-format
+msgid ""
+"Enter the country codes for which you don't wanna show your ads. %1$sProvide "
+"ISO ALPHA-2 Country Codes%2$s seperated by comma %3$s. You can find the "
+"%1$sISO ALPHA-2 Country Codes%2$s on %4$sthis website%5$s."
+msgstr ""
+
+#: inc/admin_setup.php:277
+msgid ""
+"The minimum number of click limit must needs to be more than or equals to 1 "
+"and the entered value must be a number"
+msgstr ""
+
+#: inc/admin_setup.php:285
+msgid ""
+"The click counter cookie expiration time must be a number and cannot be less "
+"than 1 hour"
+msgstr ""
+
+#: inc/admin_setup.php:293
+msgid ""
+"The user ban duration must needs to be more than or equals to 1 day & the "
+"entered value must be a number"
+msgstr ""
+
+#: inc/admin_setup.php:301
+msgid ""
+"You are trying to pass some value that it is not supposed to get. Don't try "
+"nasty hacking approaches"
+msgstr ""
+
+#: inc/admin_setup.php:360
+msgid "Settings"
+msgstr ""
+
+#: inc/admin_setup.php:380
+msgid "The selected item has been successfully deleted."
+msgstr ""
+
+#: inc/admin_setup.php:385
+msgid "Please select atleast one row before processing the delete option."
+msgstr ""
+
+#: inc/admin_setup.php:421
+msgid ""
+"On this page you will be able to see the list of banned users who have "
+"exceeded the ad click limit. Here you can also manually delete any blocked "
+"IP or perform bulk deletion on the blocked IP list."
+msgstr ""
+
+#: inc/banned_user_table.php:17
+msgid "Banned User"
+msgstr ""
+
+#: inc/banned_user_table.php:18
+msgid "Banned Users"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://www.isaumya.com/portfolio-item/wp-server-stats/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"A WordPress plugin to protect your AdSense ads from unusual click bombings "
+"and invalid clicks"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Saumya Majumder"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://www.isaumya.com/"
+msgstr ""
