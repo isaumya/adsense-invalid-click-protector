@@ -22,7 +22,7 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 	    **/
 	    public function admin_scripts() {
 	    	/* CSS Calls */
-			wp_enqueue_style('aicp-admin-interface', AICP_DIR_URL . 'assets/css/aicp-admin-interface.css', array(), '1.0.0');
+			wp_enqueue_style('aicp-admin-interface', AICP_DIR_URL . 'assets/css/aicp-admin-interface.min.css', array(), '1.0.0');
 	    }
 
 	    /**
@@ -149,6 +149,9 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 	    				?>
 	    			</h2>
 	    			<p text-align="justify"><?php printf( __( 'Hi there, %1$splease take a look at the detailed video demonstration below%2$s where I\'ve explained everything about how the plugin works and it\'s various settings. Before actually start using this plugin, I will highly recommend you to spend some time to watch the video for once. It will make everything clear. If you still got any question, fell free to ask then in the %3$sWordPress support Forum%4$s.', 'aicp' ), '<strong><em>', '</em></strong>', '<a href="#" rel="external nofollow" target="_blank">', '</a>'  );?></p>
+	    			<div class='embed-container'>
+	    			<iframe width="560" height="315" src="https://www.youtube.com/embed/kKFrhtjjvzM?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+	    			</div>
 	    			<hr />
 	    			<h2><?php _e('Support the plugin', 'aicp'); ?></h2>
 	    			<p><?php _e('Believe it or not, developing a WorPress plugin really takes quite a lot of time to develop, test and to do continuous bugfix. Moreover as I\'m sharing this plugin for free, so all those times I\'ve spent coding this plugin yeild no revenue. So, overtime it become really hard to keep spending time on this plugin. So, if you like this plugin, I will really appriciate if you consider donating some amount for this plugin. Which will help me keep spending time on this plugin and make it even better. Please donate, if you can.', 'aicp'); ?></p>

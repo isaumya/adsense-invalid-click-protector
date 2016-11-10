@@ -173,10 +173,10 @@ if( ! class_exists( 'AICP' ) ) {
 	    	$aicpAdminOBJ->fetch_data();
 
 	    	/* JS */
-	    	wp_register_script( 'js-cookie', plugins_url( '/assets/js/js.cookie.js' , __FILE__ ), array(), '2.1.3', true );
+	    	wp_register_script( 'js-cookie', plugins_url( '/assets/js/js.cookie.min.js' , __FILE__ ), array(), '2.1.3', true );
 	    	wp_enqueue_script( 'js-cookie' );
 
-	    	wp_register_script( 'aicp', plugins_url( '/assets/js/aicp.js' , __FILE__ ) , array( 'jquery' ), '1.0', true );
+	    	wp_register_script( 'aicp', plugins_url( '/assets/js/aicp.min.js' , __FILE__ ) , array( 'jquery' ), '1.0', true );
 	    	wp_enqueue_script( 'aicp' );
 	    	$country_data = $this->visitor_country( $this->visitor_ip() );
 	    	wp_localize_script( 
