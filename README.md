@@ -13,7 +13,7 @@ But now, this will come to an end with this AdSense Invalid Click Protector Word
 
 Before start using the plugin, I will highly recommend you to take a look at this video demostration where I've explained everything about this plugin.
 
-[![Video Demonstration About the AICP Plugin Usage](https://img.youtube.com/vi/kKFrhtjjvzM/0.jpg)](https://www.youtube.com/watch?v=kKFrhtjjvzM?rel=0)
+[![Video Demonstration About the AICP Plugin Usage](https://i.imgur.com/gF30D7s.jpg)](https://www.youtube.com/watch?v=kKFrhtjjvzM?rel=0)
 
 **For plugin support please post your your feedback and support questions to the [Plugin's Support Forum](https://wordpress.org/support/plugin/ad-invalid-click-protector) or in [Github Issue Tracker](https://github.com/isaumya/adsense-invalid-click-protector/issues).**
 
@@ -118,10 +118,15 @@ If you like this plugin please don't forget to write a review and if possible pl
 ## Screenshots
 
 ![AICP - Admin Dashboard Widget Screenshot](https://i.imgur.com/xibThJ2.jpg)
+
 Admin Dashboard Widget
+
 ![AICP - General Settings Page Screenshot](https://i.imgur.com/gZqEsNK.jpg)
+
 General Settings Page
+
 ![AICP - Banned User List Page Screenshot](https://i.imgur.com/Qtq9OwB.jpg)
+
 Banned User List Page
 
 ## Installation
