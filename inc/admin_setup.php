@@ -109,11 +109,11 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 	    	}
 	    	$class = 'notice notice-success is-dismissible donate_notice';
 	    	$message = sprintf( 
-	    		__('%1$sThank you%2$s for installing %1$sAdSense Invalid Click Protector%2$s. It took countless hours to code, design and test to make this plugin a reality. But as this is a <strong>free plugin</strong>, all of these time and effort does not generate any revenue. Also as I\'m not a very privileged person, so earning revenue matters to me for keeping my lights on and keep me motivated to do the work I love. %3$s So, if you enjoy this plugin and understand the huge effort I put into this, please consider %1$s%4$sdonating some amount%5$s (no matter how small)%2$s for keeping aliave the development of this plugin. Thank you again for using my plugin. Also if you love using this plugin, I would really appiciate if you take 2 minutes out of your busy schedule to %1$s%6$sshare your review%7$s%2$s about this plugin.', 'wp-server-stats'),
+	    		__('%1$sThank you%2$s for installing %1$sAdSense Invalid Click Protector%2$s. It took countless hours to code, design and test to make this plugin a reality. But as this is a <strong>free plugin</strong>, all of these time and effort does not generate any revenue. Also as I\'m not a very privileged person, so earning revenue matters to me for keeping my lights on and keep me motivated to do the work I love. %3$s So, if you enjoy this plugin and understand the huge effort I put into this, please consider %1$s%4$sdonating some amount%5$s (no matter how small)%2$s for keeping aliave the development of this plugin. Thank you again for using my plugin. Also if you love using this plugin, I would really appiciate if you take 2 minutes out of your busy schedule to %1$s%6$sshare your review%7$s%2$s about this plugin.', 'aicp'),
 	    		'<strong>', '</strong>',
 	    		'<br /> <br />',
-	    		'<a href="https://goo.gl/6qrufe" target="_blank" rel="external" title="WP Server Stats - Plugin Donation">', '</a>',
-	    		'<a href="https://wordpress.org/support/plugin/wp-server-stats/reviews/" target="_blank" rel="external" title="WP Server Stats - Post your Plugin Review">', '</a>'
+	    		'<a href="https://goo.gl/6qrufe" target="_blank" rel="external" title="AdSense Invalid Click Protector - Plugin Donation">', '</a>',
+	    		'<a href="https://wordpress.org/support/plugin/ad-invalid-click-protector/reviews/" target="_blank" rel="external" title="AdSense Invalid Click Protector - Post your Plugin Review">', '</a>'
 	    		);
 	    	printf( '<div data-dismissible="aicp-donate-notice-forever" class="%1$s"><p>%2$s</p></div>', $class, $message );
 	    }
@@ -148,7 +148,7 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 	    				_e('Video Demonstration About the Plugin Usage', 'aicp');
 	    				?>
 	    			</h2>
-	    			<p text-align="justify"><?php printf( __( 'Hi there, %1$splease take a look at the detailed video demonstration below%2$s where I\'ve explained everything about how the plugin works and it\'s various settings. Before actually start using this plugin, I will highly recommend you to spend some time to watch the video for once. It will make everything clear. If you still got any question, fell free to ask then in the %3$sWordPress support Forum%4$s.', 'aicp' ), '<strong><em>', '</em></strong>', '<a href="#" rel="external nofollow" target="_blank">', '</a>'  );?></p>
+	    			<p text-align="justify"><?php printf( __( 'Hi there, %1$splease take a look at the detailed video demonstration below%2$s where I\'ve explained everything about how the plugin works and it\'s various settings. Before actually start using this plugin, I will highly recommend you to spend some time to watch the video for once. It will make everything clear. If you still got any question, fell free to ask then in the %3$sWordPress support Forum%4$s.', 'aicp' ), '<strong><em>', '</em></strong>', '<a href="https://wordpress.org/support/plugin/ad-invalid-click-protector" rel="external nofollow" target="_blank">', '</a>'  );?></p>
 	    			<div class='embed-container'>
 	    			<iframe width="560" height="315" src="https://www.youtube.com/embed/kKFrhtjjvzM?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
 	    			</div>

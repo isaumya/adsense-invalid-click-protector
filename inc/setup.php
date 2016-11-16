@@ -39,18 +39,13 @@ if( ! class_exists( 'AICP_SETUP' ) ) {
 	    public static function on_uninstall() {
 	        if ( ! current_user_can( 'activate_plugins' ) )
 	            return;
-	        check_admin_referer( 'bulk-plugins' );
-
-	        // Important: Check if the file is the one
-	        // that was registered during the uninstall hook.
-	        if ( __FILE__ != WP_UNINSTALL_PLUGIN )
-	            return;
-
 	        global $wpdb;
 		    $table_name = $wpdb->prefix . 'adsense_invalid_click_protector';
-		    $sql = "DROP TABLE IF EXISTS $table_name";
+		    $sql = 'DROP TABLE IF EXISTS ' . $table_name;
 		    $wpdb->query($sql);
 
+		    unregister_setting( 'aicp_settings', 'aicp_settings_options' );
+		    
 		    delete_option('aicp_db_ver');
 
 		    wp_clear_scheduled_hook('aicp_hourly_cleanup');
