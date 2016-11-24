@@ -5,7 +5,7 @@ Plugin URI: https://www.isaumya.com/portfolio-item/adsense-invalid-click-protect
 Description: A WordPress plugin to protect your AdSense ads from unusual click bombings and invalid clicks
 Author: Saumya Majumder
 Author URI: https://www.isaumya.com/
-Version: 1.0.1
+Version: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: aicp
@@ -92,7 +92,7 @@ if( ! class_exists( 'AICP' ) ) {
 	    	$this->table_name = $wpdb->prefix . 'adsense_invalid_click_protector';
 
 	    	// Let's load the styles and scripts now
-	    	add_action( 'init', array( $this, 'load_textdomain' ) );
+	    	add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 	    	add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ) );
 	    	add_action( 'wp_ajax_process_data', array( $this, 'process_data' ) );
 			add_action( 'wp_ajax_nopriv_process_data', array( $this, 'process_data' ) );
@@ -152,7 +152,14 @@ if( ! class_exists( 'AICP' ) ) {
 	     * @return Visitor's Country Name & Country Code  (returns Array)
 	    **/
 	    public function visitor_country( $ip ) {
-	    	$locQuery = @unserialize( file_get_contents( 'http://ip-api.com/php/'.$ip ) );
+	    	$aicpAdminOBJ = new AICP_ADMIN();
+	    	$aicpAdminOBJ->fetch_data();
+	    	$ipapi_pro_key = trim( $aicpAdminOBJ->ipapi_pro_key );
+	    	if( $aicpAdminOBJ->ipapi_pro_check == 'Yes' && !empty( $ipapi_pro_key ) ) { // For the paid IP-API users
+	    		$locQuery = @unserialize( file_get_contents( 'https://pro.ip-api.com/php/' . $ip . '?key=' . $ipapi_pro_key ) );
+	    	} else { // for the free IP-API users
+	    		$locQuery = @unserialize( file_get_contents( 'http://ip-api.com/php/'.$ip ) );
+	    	}
 	    	if( $locQuery && $locQuery['status'] == 'success' ) {
 				$visitor_country['name'] = $locQuery['country'];
 				$visitor_country['code'] = $locQuery['countryCode'];

@@ -14,7 +14,7 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 		/* Let's declare some variables that we are going to use all around our code to fetch data 
 		 * As we are going to this variables at variour part of our code we are using public statement instead of protected
 		**/
-		public $click_limit, $click_counter_cookie_exp, $ban_duration, $country_block_check, $ban_country_list;
+		public $click_limit, $click_counter_cookie_exp, $ipapi_pro_check, $ipapi_pro_key, $ban_duration, $country_block_check, $ban_country_list;
 
 		/**
 	     * Function to load CSS & JS files at the admin side
@@ -190,6 +190,12 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 			// Add Field for the Ban Duration (in days)
 			add_settings_field( 'aicp_ban_duration', __( 'Set the Visitor Ban Duration (default: 7 days)', 'aicp' ), array( $this, 'ban_duration_field' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
 
+			// Add field to check if the user wanna use the IP-API Pro
+			add_settings_field( 'aicp_ipapi_pro_check', __( 'Do you want to use the IP-API Pro key?', 'aicp' ), array( $this, 'ipapi_pro_check' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
+
+			// Add field for the IP-API Pro Key
+			add_settings_field( 'aicp_ipapi_pro_key', __( 'Provide your IP-API Pro key', 'aicp' ), array( $this, 'ipapi_pro_key' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
+
 			// Add Field for checking if the user wanna ban any specific country
 			add_settings_field( 'aicp_country_block_check', __( 'Do you want to block showing ads for some specific countries?', 'aicp' ), array( $this, 'country_block_check_field' ), 'aicp_settings', 'aicp_section' ); // id, title, display cb, page, section
 
@@ -227,6 +233,45 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 		public function ban_duration_field() {
 			$this->fetch_data();
 			echo '<input type="number" name="aicp_settings_options[ban_duration]" value="' . $this->ban_duration . '" /><span>   ' . __( 'Day/s', 'aicp' ) . '</span>';
+		}
+
+		/**
+		 * Callback function to check if the user wants to use the IP-API pro keys
+		**/
+		public function ipapi_pro_check() {
+			$this->fetch_data();
+			$options = get_option( 'aicp_settings_options' );
+			?>
+			<input type="radio" name="aicp_settings_options[ipapi_pro_check]" value="Yes" <?php checked( empty( $options['ipapi_pro_check'] ) ? $this->ipapi_pro_check : $options['ipapi_pro_check'], 'Yes' ) ?> /> 
+			<span><?php _e( 'Yes', 'aicp' ); ?></span>
+
+			<input type="radio" name="aicp_settings_options[ipapi_pro_check]" value="No" <?php checked( empty( $options['ipapi_pro_check'] ) ? $this->ipapi_pro_check : $options['ipapi_pro_check'], 'No' ) ?> /> 
+			<span><?php _e( 'No', 'aicp' ); ?></span>
+			<br />
+			<p><?php printf( __( 'By default this plugin uses the free API from %1$sIP-API.com%2$s which allows %3$s150 requests/min%4$s. But for high traffic websites, this might be very small and may generate %3$s503 Error%4$s if you try to do more than %3$s150 req/min%4$s. To resolve this problem, you can use the %5$sPaid Version of IP-API%6$s and provide your paid key below which will allow you to do %7$sUnlimited%8$s nuber of requests.', 'aicp' ),
+				'<a href="http://ip-api.com/" target="_blank" rel="external nofollow">', '</a>',
+				'<code>', '</code>',
+				'<strong><a href="https://signup.ip-api.com/" target="_blank" rel="external nofollow">', '</a></strong>',
+				'<strong>', '</strong>' ); ?>
+			</p>
+			<?php
+
+		}
+
+		/**
+		 * Callback function to get the IP-API Pro Keys
+		**/
+		public function ipapi_pro_key() {
+			$this->fetch_data();
+			?>
+			<input type="text" name="aicp_settings_options[ipapi_pro_key]" value="<?php echo $this->ipapi_pro_key; ?>" placeholder="AbcDEFGhiJ0KL1m">
+			<p><?php printf( __( 'Please provide your paid API key of IP-API.com which you have %1$sreceived over email%2$s after %3$spurchasing the paid IP-API subscription%4$s. %5$sCheck this screenshot%6$s to understand what key I\'m talking about.', 'aicp' ),
+				'<strong>', '</strong>',
+				'<a href="https://signup.ip-api.com/" target="_blank" rel="external nofollow">', '</a>',
+				'<strong><a href="https://i.imgur.com/gp2mXiH.jpg" target="_blank" rel="external nofollow">', '</a></strong>' );?>
+			</p>
+			<?php
+
 		}
 
 		/**
@@ -271,11 +316,13 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 		public function validate_options( $fields ) {
 			$this->fetch_data();
 			$valid_fields = array();
+			$flag = 0;
 
 			$valid_fields['click_limit'] = strip_tags( stripslashes( trim( $fields['click_limit'] ) ) );
 
 			if( $valid_fields['click_limit'] < 1 || ( is_numeric( $valid_fields['click_limit'] ) === FALSE ) ) {
 				$valid_fields['click_limit'] = $this->click_limit;
+				++$flag;
 				// Set the error message
 				add_settings_error( 'aicp_settings_options', 'aicp_click_limit_error', __( 'The minimum number of click limit must needs to be more than or equals to 1 and the entered value must be a number', 'aicp' ), 'error' ); // $setting, $code, $message, $type
 			}
@@ -284,6 +331,7 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 
 			if( $valid_fields['click_counter_cookie_exp'] < 1 || ( is_numeric( $valid_fields['click_counter_cookie_exp'] ) === FALSE ) ) {
 				$valid_fields['click_counter_cookie_exp'] = $this->click_counter_cookie_exp;
+				++$flag;
 				// Set the error message
 				add_settings_error( 'aicp_settings_options', 'aicp_click_counter_cookie_exp_error', __( 'The click counter cookie expiration time must be a number and cannot be less than 1 hour', 'aicp' ), 'error' ); // $setting, $code, $message, $type
 			}
@@ -292,19 +340,53 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 
 			if( $valid_fields['ban_duration'] < 1 || ( is_numeric( $valid_fields['ban_duration'] ) === FALSE ) ) {
 				$valid_fields['ban_duration'] = $this->ban_duration;
+				++$flag;
 				// Set the error message
 				add_settings_error( 'aicp_settings_options', 'aicp_ban_ducation_error', __( 'The user ban duration must needs to be more than or equals to 1 day & the entered value must be a number', 'aicp' ), 'error' ); // $setting, $code, $message, $type
+			}
+
+			$valid_fields['ipapi_pro_check'] = strip_tags( stripslashes( trim( $fields['ipapi_pro_check'] ) ) );
+
+			if( !( $valid_fields['ipapi_pro_check'] == 'Yes' || $valid_fields['ipapi_pro_check'] == 'No' ) ) {
+				$valid_fields['ipapi_pro_check'] = $this->ipapi_pro_check;
+				++$flag;
+				// Set the error message
+				add_settings_error( 'aicp_settings_options', 'aicp_ipapi_pro_check_error', __( 'You are trying to pass some value that it is not supposed to get. Don\'t try nasty hacking approaches', 'aicp' ), 'error' ); // $setting, $code, $message, $type
+			}
+
+			$valid_fields['ipapi_pro_key'] = strip_tags( stripslashes( trim( $fields['ipapi_pro_key'] ) ) );
+
+			if( $valid_fields['ipapi_pro_check'] == 'Yes' && trim( $valid_fields['ipapi_pro_key'] ) == '' ) {
+				$valid_fields['ipapi_pro_check'] = $this->ipapi_pro_check;
+				$valid_fields['ipapi_pro_key'] = $this->ipapi_pro_key;
+				++$flag;
+				// Set the error message
+				add_settings_error( 'aicp_settings_options', 'aicp_ipapi_pro_check_error', __( 'Sorry! The IP-API Pro key cannot be blank while you are selecting YES for using IP-API Pro keys. Please make sure you have provided your API key while selecting YES.', 'aicp' ), 'error' ); // $setting, $code, $message, $type
 			}
 
 			$valid_fields['country_block_check'] = strip_tags( stripslashes( trim( $fields['country_block_check'] ) ) );
 
 			if( !( $valid_fields['country_block_check'] == 'Yes' || $valid_fields['country_block_check'] == 'No' ) ) {
 				$valid_fields['country_block_check'] = $this->country_block_check;
+				++$flag;
 				// Set the error message
 				add_settings_error( 'aicp_settings_options', 'aicp_country_block_check_error', __( 'You are trying to pass some value that it is not supposed to get. Don\'t try nasty hacking approaches', 'aicp' ), 'error' ); // $setting, $code, $message, $type
 			}
 
 			$valid_fields['ban_country_list'] = strip_tags( stripslashes( trim( $fields['ban_country_list'] ) ) );
+
+			if( $valid_fields['country_block_check'] == 'Yes' && trim( $valid_fields['ban_country_list'] ) == '' ) {
+				$valid_fields['country_block_check'] = $this->country_block_check;
+				$valid_fields['ban_country_list'] = $this->ban_country_list;
+				++$flag;
+				// Set the error message
+				add_settings_error( 'aicp_settings_options', 'aicp_ipapi_pro_check_error', __( 'Sorry! The banned country list cannot be blank while you are selecting YES for the question if you wanna ban any country. <br />Please provide some country codes when you select the Ban country check option as YES.', 'aicp' ), 'error' ); // $setting, $code, $message, $type
+			}
+
+			//showing the success message if there is no validation error
+			if( $flag == 0 ) {
+				add_settings_error( 'aicp_settings_options', 'aicp_seetings_save', __( 'Congratulation! All of your settings have been seccessfully saved.', 'aicp' ), 'updated' ); // $setting, $code, $message, $type
+			}
 
 			//Now it's time to save the values to the server
 			return apply_filters( 'validate_options', $valid_fields, $fields);
@@ -320,6 +402,8 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 				$this->click_limit = 3; //default click limit is 3
 				$this->click_counter_cookie_exp = 3; //default click counter cookie expiration time is 3 HOURS
 				$this->ban_duration = 7; //default ban duration is 7 days
+				$this->ipapi_pro_check = 'No'; // Default value No
+				$this->ipapi_pro_key = ''; // default is blank
 				$this->country_block_check = 'No'; //default state is No
 				$this->ban_country_list = ''; //default state is a blank string
 			} else {
@@ -340,6 +424,18 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 					$this->ban_duration = 7; //default ban duration is 7 days
 				} else {
 					$this->ban_duration = $fetched_data['ban_duration'];
+				}
+				//ipapi_pro_check
+				if( empty( $fetched_data['ipapi_pro_check'] ) ) {
+					$this->ipapi_pro_check = 'No'; //default state is No
+				} else {
+					$this->ipapi_pro_check = $fetched_data['ipapi_pro_check'];
+				}
+				//ipapi_pro_key
+				if( empty( $fetched_data['ipapi_pro_key'] ) ) {
+					$this->ipapi_pro_key = ''; //default state is blank
+				} else {
+					$this->ipapi_pro_key = $fetched_data['ipapi_pro_key'];
 				}
 				//country_block_check
 				if( empty( $fetched_data['country_block_check'] ) ) {

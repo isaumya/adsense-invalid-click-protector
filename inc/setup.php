@@ -47,6 +47,7 @@ if( ! class_exists( 'AICP_SETUP' ) ) {
 		    unregister_setting( 'aicp_settings', 'aicp_settings_options' );
 		    
 		    delete_option('aicp_db_ver');
+		    delete_transient( 'aicp-donate-notice' );
 
 		    wp_clear_scheduled_hook('aicp_hourly_cleanup');
 	    }

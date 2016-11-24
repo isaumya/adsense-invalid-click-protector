@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AdSense Invalid Click Protector\n"
-"POT-Creation-Date: 2016-11-09 00:32+0530\n"
-"PO-Revision-Date: 2016-11-09 00:34+0530\n"
+"POT-Creation-Date: 2016-11-24 19:48+0530\n"
+"PO-Revision-Date: 2016-11-24 19:49+0530\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_IN\n"
@@ -53,7 +53,7 @@ msgstr ""
 msgid "AICP - Banned User Details"
 msgstr ""
 
-#: inc/admin_setup.php:93 inc/admin_setup.php:420
+#: inc/admin_setup.php:93 inc/admin_setup.php:519
 msgid "Banned User Details"
 msgstr ""
 
@@ -105,11 +105,11 @@ msgid ""
 "the %3$sWordPress support Forum%4$s."
 msgstr ""
 
-#: inc/admin_setup.php:153
+#: inc/admin_setup.php:156
 msgid "Support the plugin"
 msgstr ""
 
-#: inc/admin_setup.php:154
+#: inc/admin_setup.php:157
 msgid ""
 "Believe it or not, developing a WorPress plugin really takes quite a lot of "
 "time to develop, test and to do continuous bugfix. Moreover as I'm sharing "
@@ -121,47 +121,74 @@ msgid ""
 "can."
 msgstr ""
 
-#: inc/admin_setup.php:179
+#: inc/admin_setup.php:182
 msgid "Change the AdSense Invalid Click Protector Settings"
 msgstr ""
 
-#: inc/admin_setup.php:182
+#: inc/admin_setup.php:185
 msgid "Set the Ad Click Limit"
 msgstr ""
 
-#: inc/admin_setup.php:185
+#: inc/admin_setup.php:188
 msgid "Click Counter Cooke Expiration Time (default: 3 hours)"
 msgstr ""
 
-#: inc/admin_setup.php:188
+#: inc/admin_setup.php:191
 msgid "Set the Visitor Ban Duration (default: 7 days)"
 msgstr ""
 
-#: inc/admin_setup.php:191
+#: inc/admin_setup.php:194
+msgid "Do you want to use the IP-API Pro key?"
+msgstr ""
+
+#: inc/admin_setup.php:197
+msgid "Provide your IP-API Pro key"
+msgstr ""
+
+#: inc/admin_setup.php:200
 msgid "Do you want to block showing ads for some specific countries?"
 msgstr ""
 
-#: inc/admin_setup.php:194
+#: inc/admin_setup.php:203
 msgid "Banned Country List - Put ISO ALPHA-2 Country Codes (Comma Seperated)"
 msgstr ""
 
-#: inc/admin_setup.php:218
+#: inc/admin_setup.php:227
 msgid "Hour/s"
 msgstr ""
 
-#: inc/admin_setup.php:226
+#: inc/admin_setup.php:235
 msgid "Day/s"
 msgstr ""
 
-#: inc/admin_setup.php:237
+#: inc/admin_setup.php:246 inc/admin_setup.php:285
 msgid "Yes"
 msgstr ""
 
-#: inc/admin_setup.php:240
+#: inc/admin_setup.php:249 inc/admin_setup.php:288
 msgid "No"
 msgstr ""
 
-#: inc/admin_setup.php:255
+#: inc/admin_setup.php:251
+#, php-format
+msgid ""
+"By default this plugin uses the free API from %1$sIP-API.com%2$s which "
+"allows %3$s150 requests/min%4$s. But for high traffic websites, this might "
+"be very small and may generate %3$s503 Error%4$s if you try to do more than "
+"%3$s150 req/min%4$s. To resolve this problem, you can use the %5$sPaid "
+"Version of IP-API%6$s and provide your paid key below which will allow you "
+"to do %7$sUnlimited%8$s nuber of requests."
+msgstr ""
+
+#: inc/admin_setup.php:268
+#, php-format
+msgid ""
+"Please provide your paid API key of IP-API.com which you have %1$sreceived "
+"over email%2$s after %3$spurchasing the paid IP-API subscription%4$s. "
+"%5$sCheck this screenshot%6$s to understand what key I'm talking about."
+msgstr ""
+
+#: inc/admin_setup.php:303
 #, php-format
 msgid ""
 "Enter the country codes for which you don't wanna show your ads. %1$sProvide "
@@ -169,43 +196,61 @@ msgid ""
 "%1$sISO ALPHA-2 Country Codes%2$s on %4$sthis website%5$s."
 msgstr ""
 
-#: inc/admin_setup.php:277
+#: inc/admin_setup.php:327
 msgid ""
 "The minimum number of click limit must needs to be more than or equals to 1 "
 "and the entered value must be a number"
 msgstr ""
 
-#: inc/admin_setup.php:285
+#: inc/admin_setup.php:336
 msgid ""
 "The click counter cookie expiration time must be a number and cannot be less "
 "than 1 hour"
 msgstr ""
 
-#: inc/admin_setup.php:293
+#: inc/admin_setup.php:345
 msgid ""
 "The user ban duration must needs to be more than or equals to 1 day & the "
 "entered value must be a number"
 msgstr ""
 
-#: inc/admin_setup.php:301
+#: inc/admin_setup.php:354 inc/admin_setup.php:373
 msgid ""
 "You are trying to pass some value that it is not supposed to get. Don't try "
 "nasty hacking approaches"
 msgstr ""
 
-#: inc/admin_setup.php:360
+#: inc/admin_setup.php:364
+msgid ""
+"Sorry! The IP-API Pro key cannot be blank while you are selecting YES for "
+"using IP-API Pro keys. Please make sure you have provided your API key while "
+"selecting YES."
+msgstr ""
+
+#: inc/admin_setup.php:383
+msgid ""
+"Sorry! The banned country list cannot be blank while you are selecting YES "
+"for the question if you wanna ban any country. <br />Please provide some "
+"country codes when you select the Ban country check option as YES."
+msgstr ""
+
+#: inc/admin_setup.php:388
+msgid "Congratulation! All of your settings have been seccessfully saved."
+msgstr ""
+
+#: inc/admin_setup.php:459
 msgid "Settings"
 msgstr ""
 
-#: inc/admin_setup.php:380
+#: inc/admin_setup.php:479
 msgid "The selected item has been successfully deleted."
 msgstr ""
 
-#: inc/admin_setup.php:385
+#: inc/admin_setup.php:484
 msgid "Please select atleast one row before processing the delete option."
 msgstr ""
 
-#: inc/admin_setup.php:421
+#: inc/admin_setup.php:520
 msgid ""
 "On this page you will be able to see the list of banned users who have "
 "exceeded the ad click limit. Here you can also manually delete any blocked "
@@ -221,7 +266,7 @@ msgid "Banned Users"
 msgstr ""
 
 #. Plugin URI of the plugin/theme
-msgid "https://www.isaumya.com/portfolio-item/wp-server-stats/"
+msgid "https://www.isaumya.com/portfolio-item/adsense-invalid-click-protector/"
 msgstr ""
 
 #. Description of the plugin/theme
