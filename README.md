@@ -1,4 +1,4 @@
-# AdSense Invalid Click Protector (AICP)
+# AdSense Invalid Click Protector (AICP) [![Version](https://img.shields.io/wordpress/plugin/v/ad-invalid-click-protector.svg?style=flat-square)](https://wordpress.org/plugins/ad-invalid-click-protector/) ![Downloads](https://img.shields.io/wordpress/plugin/dt/ad-invalid-click-protector.svg?style=flat-square) ![Rating](https://img.shields.io/wordpress/plugin/r/ad-invalid-click-protector.svg?style=flat-square)
 One plugin to save your AdSense account from Click Bombings and Invalid Click Activities
 
 > Just because in the name of the plugin there is "AdSense" doesn't mean that it only work with AdSense ads. You can literally use it with any ad media you want. Whether it is Google AdSense or some other publisher or even affiliate ads. As long as you follow the proper usage of the plugin mentioned below, it's gonna work just fine.
