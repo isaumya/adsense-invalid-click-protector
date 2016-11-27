@@ -5,7 +5,7 @@ Plugin URI: https://www.isaumya.com/portfolio-item/adsense-invalid-click-protect
 Description: A WordPress plugin to protect your AdSense ads from unusual click bombings and invalid clicks
 Author: Saumya Majumder
 Author URI: https://www.isaumya.com/
-Version: 1.0.4
+Version: 1.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: aicp
