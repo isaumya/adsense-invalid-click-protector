@@ -103,20 +103,44 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 	    **/
 	    public function show_admin_notice() {
 	    	settings_errors( 'aicp_settings_options' );
-			//Making sure the following welcome notice doesn't show up after closing it
-	    	if( ! PAnD::is_admin_notice_active( 'aicp-donate-notice-forever' ) ) {
-	    		return;
-	    	}
-	    	$class = 'notice notice-success is-dismissible donate_notice';
+
+	    	$class = 'notice notice-success is-dismissible aicp_donate_notice';
 	    	$message = sprintf( 
-	    		__('%1$sThank you%2$s for installing %1$sAdSense Invalid Click Protector%2$s. It took countless hours to code, design and test to make this plugin a reality. But as this is a <strong>free plugin</strong>, all of these time and effort does not generate any revenue. Also as I\'m not a very privileged person, so earning revenue matters to me for keeping my lights on and keep me motivated to do the work I love. %3$s So, if you enjoy this plugin and understand the huge effort I put into this, please consider %1$s%4$sdonating some amount%5$s (no matter how small)%2$s for keeping aliave the development of this plugin. Thank you again for using my plugin. Also if you love using this plugin, I would really appiciate if you take 2 minutes out of your busy schedule to %1$s%6$sshare your review%7$s%2$s about this plugin.', 'aicp'),
+	    		__('%1$sThank you%2$s for installing %1$sAdSense Invalid Click Protector%2$s. It took 100+ hours to code, design and test to make this plugin a reality. But as this is a <strong>free plugin</strong>, all of these time and effort does not generate any revenue. Also as I\'m not a very privileged person, so earning revenue matters to me for keeping my lights on and keep me motivated to do the work I love. %3$s So, if you enjoy this plugin and understand the huge effort I put into this, please consider %1$s%4$sdonating some amount%5$s (no matter how small)%2$s for keeping aliave the development of this plugin. Thank you again for using my plugin. Also if you love using this plugin, I would really appiciate if you take 2 minutes out of your busy schedule to %1$s%6$sshare your review%7$s%2$s about this plugin.', 'aicp'),
 	    		'<strong>', '</strong>',
 	    		'<br /> <br />',
 	    		'<a href="http://donate.isaumya.com" target="_blank" rel="external" title="AdSense Invalid Click Protector - Plugin Donation">', '</a>',
 	    		'<a href="https://wordpress.org/support/plugin/ad-invalid-click-protector/reviews/" target="_blank" rel="external" title="AdSense Invalid Click Protector - Post your Plugin Review">', '</a>'
 	    		);
-	    	printf( '<div data-dismissible="aicp-donate-notice-forever" class="%1$s"><p>%2$s</p></div>', $class, $message );
+	    	$welcome_notice_curr_state = get_option( 'aicp_donate_notice' );
+	    	if( empty( $welcome_notice_curr_state ) ) {
+	    		printf( '<div id="aicp_donate_notice" class="%1$s"><p>%2$s</p></div>', $class, $message );
+	    		echo "<script>
+	    		(function($){
+					$('#aicp_donate_notice').on('click', '.notice-dismiss', function(){
+						jQuery.ajax({
+							type: 'POST',
+							url: '" . admin_url( 'admin-ajax.php' ) . "',
+							data: {
+								\"action\": \"handle_aicp_donate_notice\",
+								\"nonce\": \"" . wp_create_nonce( "aicp_wn_nonce" ) . "\"
+							},
+							success: function( data ){
+								$('#aicp_donate_notice').hide();
+							}
+						});
+					});
+				})(jQuery);
+	    		</script>";
+	    	}
 	    }
+
+	    public function handle_aicp_donate_notice() {
+			check_ajax_referer( 'aicp_wn_nonce', 'nonce' );
+	    	update_option('aicp_donate_notice', 'hide' );
+			$result = get_option( 'aicp_donate_notice' );
+			return $result;
+		}
 
 	    /**
 	     * Function to show admin settings page

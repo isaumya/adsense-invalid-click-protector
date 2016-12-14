@@ -46,13 +46,14 @@ if( ! class_exists( 'AICP_SETUP' ) ) {
 
 		    delete_option( 'aicp_settings_options' );
 		    delete_site_option( 'aicp_settings_options' );
+
+		    delete_option( 'aicp_donate_notice' );
+		    delete_site_option( 'aicp_donate_notice' );
 		    
 		    unregister_setting( 'aicp_settings', 'aicp_settings_options' );
 		    
 		    delete_option('aicp_db_ver');
 		    delete_site_option( 'aicp_db_ver' );
-		    delete_transient( 'aicp-donate-notice' );
-		    delete_site_transient( 'aicp-donate-notice' );
 
 		    wp_clear_scheduled_hook('aicp_hourly_cleanup');
 	    }
