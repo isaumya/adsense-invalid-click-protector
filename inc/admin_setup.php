@@ -104,16 +104,17 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 	    public function show_admin_notice() {
 	    	settings_errors( 'aicp_settings_options' );
 
-	    	$class = 'notice notice-success is-dismissible aicp_donate_notice';
-	    	$message = sprintf( 
-	    		__('%1$sThank you%2$s for installing %1$sAdSense Invalid Click Protector%2$s. It took 100+ hours to code, design and test to make this plugin a reality. But as this is a <strong>free plugin</strong>, all of these time and effort does not generate any revenue. Also as I\'m not a very privileged person, so earning revenue matters to me for keeping my lights on and keep me motivated to do the work I love. %3$s So, if you enjoy this plugin and understand the huge effort I put into this, please consider %1$s%4$sdonating some amount%5$s (no matter how small)%2$s for keeping aliave the development of this plugin. Thank you again for using my plugin. Also if you love using this plugin, I would really appiciate if you take 2 minutes out of your busy schedule to %1$s%6$sshare your review%7$s%2$s about this plugin.', 'aicp'),
-	    		'<strong>', '</strong>',
-	    		'<br /> <br />',
-	    		'<a href="http://donate.isaumya.com" target="_blank" rel="external" title="AdSense Invalid Click Protector - Plugin Donation">', '</a>',
-	    		'<a href="https://wordpress.org/support/plugin/ad-invalid-click-protector/reviews/" target="_blank" rel="external" title="AdSense Invalid Click Protector - Post your Plugin Review">', '</a>'
-	    		);
 	    	$welcome_notice_curr_state = get_option( 'aicp_donate_notice' );
 	    	if( empty( $welcome_notice_curr_state ) ) {
+	    		$class = 'notice notice-success is-dismissible aicp_donate_notice';
+		    	$message = sprintf( 
+		    		__('%1$sThank you%2$s for installing %1$sAdSense Invalid Click Protector%2$s. It took 300+ hours to code, design and test to make this plugin a reality. But as this is a <strong>free plugin</strong>, all of these time and effort does not generate any revenue. Also as I\'m not a very privileged person, so earning revenue matters to me for keeping my lights on and keep me motivated to do the work I love. %3$s So, if you enjoy this plugin and understand the huge effort I put into this, please consider %1$s%4$sdonating some amount%5$s (no matter how small)%2$s for keeping aliave the development of this plugin. Thank you again for using my plugin. Also if you love using this plugin, I would really appiciate if you take 2 minutes out of your busy schedule to %1$s%6$sshare your review%7$s%2$s about this plugin.', 'aicp'),
+		    		'<strong>', '</strong>',
+		    		'<br /> <br />',
+		    		'<a href="http://donate.isaumya.com" target="_blank" rel="external" title="AdSense Invalid Click Protector - Plugin Donation">', '</a>',
+		    		'<a href="https://wordpress.org/support/plugin/ad-invalid-click-protector/reviews/" target="_blank" rel="external" title="AdSense Invalid Click Protector - Post your Plugin Review">', '</a>'
+		    	);
+		    	
 	    		printf( '<div id="aicp_donate_notice" class="%1$s"><p>%2$s</p></div>', $class, $message );
 	    		echo "<script>
 	    		(function($){

@@ -1,7 +1,7 @@
 # AdSense Invalid Click Protector (AICP) [![Version](https://img.shields.io/wordpress/plugin/v/ad-invalid-click-protector.svg?style=flat-square)](https://wordpress.org/plugins/ad-invalid-click-protector/) ![Downloads](https://img.shields.io/wordpress/plugin/dt/ad-invalid-click-protector.svg?style=flat-square) ![Rating](https://img.shields.io/wordpress/plugin/r/ad-invalid-click-protector.svg?style=flat-square)
 One plugin to save your AdSense account from Click Bombings and Invalid Click Activities
 
-> Just because in the name of the plugin there is "AdSense" doesn't mean that it only work with AdSense ads. You can literally use it with any ad media you want. Whether it is Google AdSense or some other publisher or even affiliate ads. As long as you follow the proper usage of the plugin mentioned below, it's gonna work just fine.
+> From v1.1.1 this plugin will only work with AdSense or any iframe based ad codes. It will no longer work with normal affiliate banner ads. Only iframe based ads will work. If you want to use this plugin with general affiliate banner, download v1.0.6
 
 ## Description
 
@@ -101,7 +101,8 @@ You can install the [WP Server Stats](https://wordpress.org/plugins/wp-server-st
 
 **Q. Can this plugin be used with other ad medias?**
 
-Ofcourse it can. The only reason I put AdSense in the plugin name is bacuse most people use AdSense, but you can use it with any ad media including affiliate ads, as long as you are incoporating your ad code with the `if( aicp_can_see_ads() ) {}` block and wrap your ad code with the `<div class="aicp">....ad....code....</div>` block.
+No It is not. This plugin will only work with AdSense ads or any ad media that shows iframe based ads. Recently Google has tweaked there ad code which makes merely impossible to support both iframe based ads like AdSense and non-iframe based ads, like affiliate ads.
+In case of affiliate ads, there is generally no click bombing issue, that is why from v1.1.0, AICP will only support iframe based ads and not general affiliate ads. Sorry guys! In case you want to use AICP just for affiliate ads, I will recommend you to download v1.0.6 of the plugin from the [old archive](https://wordpress.org/plugins/ad-invalid-click-protector/developers/).
 
 **Q. Will it help me from stop clicking on my own ads?**
 

@@ -5,7 +5,7 @@ Plugin URI: https://www.isaumya.com/portfolio-item/adsense-invalid-click-protect
 Description: A WordPress plugin to protect your AdSense ads from unusual click bombings and invalid clicks
 Author: Saumya Majumder
 Author URI: https://www.isaumya.com/
-Version: 1.0.6
+Version: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: aicp
@@ -58,6 +58,7 @@ if( ! class_exists( 'AICP' ) ) {
 	  
 	    /** Refers to a single instance of this class. */
 	    private static $instance = null;
+	    private static $refresh_check = 0;
 	     
 	    /* Saved options */
 	    public $table_name;
@@ -179,8 +180,10 @@ if( ! class_exists( 'AICP' ) ) {
 	    	/* JS */
 	    	wp_register_script( 'js-cookie', plugins_url( '/assets/js/js.cookie.min.js' , __FILE__ ), array(), '2.1.3', true );
 	    	wp_enqueue_script( 'js-cookie' );
+	    	wp_register_script( 'js-iframe-tracker', plugins_url( '/assets/js/jquery.iframetracker.min.js' , __FILE__ ), array( 'jquery' ), '1.1.0', true );
+	    	wp_enqueue_script( 'js-iframe-tracker' );
 
-	    	wp_register_script( 'aicp', plugins_url( '/assets/js/aicp.min.js' , __FILE__ ) , array( 'jquery' ), '1.0', true );
+	    	wp_register_script( 'aicp', plugins_url( '/assets/js/aicp.min.js' , __FILE__ ) , array( 'jquery', 'js-cookie', 'js-iframe-tracker' ), '1.0', true );
 	    	wp_enqueue_script( 'aicp' );
 	    	$country_data = $this->visitor_country( $this->visitor_ip() );
 	    	wp_localize_script( 
