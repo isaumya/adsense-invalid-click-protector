@@ -175,7 +175,7 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 	    			</h2>
 	    			<p text-align="justify"><?php printf( __( 'Hi there, %1$splease take a look at the detailed video demonstration below%2$s where I\'ve explained everything about how the plugin works and it\'s various settings. Before actually start using this plugin, I will highly recommend you to spend some time to watch the video for once. It will make everything clear. If you still got any question, fell free to ask then in the %3$sWordPress support Forum%4$s.', 'aicp' ), '<strong><em>', '</em></strong>', '<a href="https://wordpress.org/support/plugin/ad-invalid-click-protector" rel="external nofollow" target="_blank">', '</a>'  );?></p>
 	    			<div class='embed-container'>
-	    			<iframe width="560" height="315" src="https://www.youtube.com/embed/kKFrhtjjvzM?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+	    			<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/XKSeT4MIBBg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 	    			</div>
 	    			<hr />
 	    			<h2><?php _e('Support the plugin', 'aicp'); ?></h2>
@@ -400,7 +400,7 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 
 			//showing the success message if there is no validation error
 			if( $flag == 0 ) {
-				add_settings_error( 'aicp_settings_options', 'aicp_seetings_save', __( 'Congratulation! All of your settings have been seccessfully saved.', 'aicp' ), 'updated' ); // $setting, $code, $message, $type
+				add_settings_error( 'aicp_settings_options', 'aicp_seetings_save', __( 'Congratulation! All of your settings have been successfully saved.', 'aicp' ), 'updated' ); // $setting, $code, $message, $type
 			}
 
 			//Now it's time to save the values to the server
@@ -499,6 +499,16 @@ if( ! class_exists( 'AICP_ADMIN' ) ) {
 				$message = __( 'Please select atleast one row before processing the delete option.', 'aicp' );
 
 				printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
+	    	}
+	    }
+
+	    /**
+	     * function to check if the plugin is using the latest table structure
+	    **/
+	    public function table_structure_update() {
+	    	global $aicp_db_ver;
+	    	if( get_option( 'aicp_db_ver' ) != $aicp_db_ver ) {
+	    		AICP_SETUP::on_activation();
 	    	}
 	    }
 

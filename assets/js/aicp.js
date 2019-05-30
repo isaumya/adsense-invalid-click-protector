@@ -37,8 +37,6 @@
 								"action": "process_data", 
 								"nonce": AICP.nonce,
 								"ip": AICP.ip,
-								"countryName": AICP.countryName,
-								"countryCode": AICP.countryCode,
 								"click_count": (count - 1)
 							},
 							success: function( data ){

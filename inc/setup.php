@@ -2,7 +2,7 @@
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 global $aicp_db_ver;
-$aicp_db_ver = '1.0';
+$aicp_db_ver = '1.1';
 
 if( ! class_exists( 'AICP_SETUP' ) ) {
 	class AICP_SETUP {
@@ -19,8 +19,6 @@ if( ! class_exists( 'AICP_SETUP' ) ) {
 				id bigint NOT NULL AUTO_INCREMENT,
 				ip varchar(39) NOT NULL,
 				click_count int NOT NULL,
-				country_name varchar(100) NOT NULL,
-				country_code varchar(5) NOT NULL,
 				timestamp datetime NOT NULL,
 				PRIMARY KEY  (id)
 			) $charset_collate;";
@@ -28,8 +26,14 @@ if( ! class_exists( 'AICP_SETUP' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 			// Let's execute the sql and create the table now
 			dbDelta( $sql );
+
+			if( get_option( 'aicp_db_ver' ) != $aicp_db_ver ) {
+				$update_table_query = "ALTER TABLE " . $table_name . " DROP COLUMN country_name, DROP COLUMN country_code;";
+				$wpdb->query( $update_table_query );
+			} 
+			
 			//Lets save our database option
-			add_option( 'aicp_db_ver', $aicp_db_ver );
+			update_option( 'aicp_db_ver', $aicp_db_ver );
 			//Creating the scheduled job to delete stuffs which is more than 7 days old
 			if ( ! wp_next_scheduled ( 'aicp_hourly_cleanup' ) ) {
 				wp_schedule_event( time(), 'hourly', 'aicp_hourly_cleanup' );

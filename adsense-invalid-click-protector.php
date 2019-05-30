@@ -5,7 +5,7 @@ Plugin URI: https://www.isaumya.com/portfolio-item/adsense-invalid-click-protect
 Description: A WordPress plugin to protect your AdSense ads from unusual click bombings and invalid clicks
 Author: Saumya Majumder
 Author URI: https://www.isaumya.com/
-Version: 1.1.1
+Version: 1.2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: aicp
@@ -97,6 +97,7 @@ if( ! class_exists( 'AICP' ) ) {
 
 			$aicpAdminOBJ = new AICP_ADMIN();
 			// Handeling the calls for wp-admin side
+			add_action( 'plugins_loaded', array( $aicpAdminOBJ, 'table_structure_update' ) );
 			add_action( 'admin_enqueue_scripts', array( $aicpAdminOBJ, 'admin_scripts' ) );
 			add_action( 'wp_dashboard_setup', array( $aicpAdminOBJ, 'aicp_dashboard' ) );
 			/* First lets initialize an admin settings link inside WP dashboard */
@@ -132,17 +133,34 @@ if( ! class_exists( 'AICP' ) ) {
 	     * @return Visitor's IP address
 	    **/
 	    public function visitor_ip() {
-	    	foreach ( array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' ) as $key ) {
+	    	$ipArr = array();
+
+	    	foreach ( array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_ORIGINATING_IP', 'HTTP_X_REMOTE_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' ) as $key ) {
 		        if ( array_key_exists( $key, $_SERVER ) === true ) {
 		            foreach ( explode( ',', $_SERVER[$key] ) as $ip ) {
 		                $ip = trim( $ip ); // just to be safe
 
 		                if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) !== false ) {
-		                    return $ip;
+		                	array_push($ipArr, $ip);
+		                    //return $ip;
 		                }
 		            }
 		        }
 		    }
+
+		    $currentIP = '';
+			$actualIP = '';
+
+			foreach ($ipArr as $ip) {
+				if($ip !== $_SERVER['SERVER_ADDR']) {
+					if($currentIP !== $ip) {
+						$currentIP = $ip;
+						$actualIP = $ip;
+					} 
+				}
+			}
+
+			return $actualIP;
 	    }
 
 	    /**
@@ -185,7 +203,6 @@ if( ! class_exists( 'AICP' ) ) {
 
 	    	wp_register_script( 'aicp', plugins_url( '/assets/js/aicp.min.js' , __FILE__ ) , array( 'jquery', 'js-cookie', 'js-iframe-tracker' ), '1.0', true );
 	    	wp_enqueue_script( 'aicp' );
-	    	$country_data = $this->visitor_country( $this->visitor_ip() );
 	    	wp_localize_script( 
 	    		'aicp', //id
 	    		'AICP', // The name using which data will be fetched at the JS side
@@ -193,8 +210,6 @@ if( ! class_exists( 'AICP' ) ) {
 		    		'ajaxurl' => admin_url( 'admin-ajax.php' ),
 		    		'nonce' => wp_create_nonce( "aicp_nonce" ),
 		    		'ip' => $this->visitor_ip(),
-		    		'countryName' => $country_data['name'],
-		    		'countryCode' => $country_data['code'],
 		    		'clickLimit' => $aicpAdminOBJ->click_limit,
 		    		'clickCounterCookieExp' => $aicpAdminOBJ->click_counter_cookie_exp,
 		    		'banDuration' => $aicpAdminOBJ->ban_duration,
@@ -224,8 +239,6 @@ if( ! class_exists( 'AICP' ) ) {
 				array( 
 					'ip' => $ip,
 					'click_count' => $clickCount,
-					'country_name' => $countryName,
-					'country_code' => $countryCode,
 					'timestamp' => current_time( 'mysql' )
 				) 
 			);
@@ -247,12 +260,14 @@ if( ! function_exists( 'aicp_can_see_ads' ) ) {
 
 		$match = $wpdb->get_var( "SELECT COUNT(id) FROM $aicpOBJ->table_name WHERE ip = '$visitorIP'" );
 
-		$country_data = $aicpOBJ->visitor_country( $aicpOBJ->visitor_ip() );
-		$visitor_country = $country_data['code'];
-
 		$fetched_data = get_option( 'aicp_settings_options' );
 		$blocked_countries = trim( $fetched_data['ban_country_list'] );
 		$blocked_country = explode( ',', $blocked_countries );
+
+		if( $fetched_data["country_block_check"] == 'Yes' ) {
+			$country_data = $aicpOBJ->visitor_country( $aicpOBJ->visitor_ip() );
+			$visitor_country = $country_data['code'];
+		}
 
 		//This section will run when the country ban is enabled
 		if( ( !empty( $blocked_countries ) ) && $fetched_data["country_block_check"] == 'Yes' ) {
@@ -263,7 +278,7 @@ if( ! function_exists( 'aicp_can_see_ads' ) ) {
 			}
 			if( $flag > 0 ) { // This means that the user is visiting the site from a banned country
 				return false; // No visitor cannot see ads as he is in our block list
-			} else { // This means that the iser is not visiting from a banned country
+			} else { // This means that the user is not visiting from a banned country
 				if( $match > 0 ) { //So, it's time to check if the visitor's IP is blocked or not
 					return false; // No visitor cannot see ads as he is in our block list
 				} else {

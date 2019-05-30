@@ -24,8 +24,6 @@ if( ! class_exists( 'AICP_BANNED_USER_TABLE' ) ) {
 			switch( $column_name ) { 
 				case 'ip':
 				case 'click_count':
-				case 'country_name':
-				case 'country_code':
 				case 'timestamp':
 					return $item->$column_name;
 				default:
@@ -52,8 +50,6 @@ if( ! class_exists( 'AICP_BANNED_USER_TABLE' ) ) {
 				'cb' => '<input type="checkbox" />',
 			    'ip' => 'IP Address',
 			    'click_count' => 'Click Count',
-			    'country_name' => 'Country Name',
-			    'country_code' => 'Country Code',
 			    'timestamp' => 'Timestamp'
 			);
 			return $columns;
@@ -63,8 +59,6 @@ if( ! class_exists( 'AICP_BANNED_USER_TABLE' ) ) {
 			$sortable_columns = array(
 				'ip'  => array( 'ip', false ),
 				'click_count' => array( 'click_count', false ),
-				'country_name'   => array( 'country_name', false ),
-				'country_code'   => array( 'country_code', false ),
 				'timestamp'   => array( 'timestamp', false )
 			);
 			return $sortable_columns;
