@@ -5,7 +5,7 @@ Plugin URI: https://www.isaumya.com/portfolio-item/adsense-invalid-click-protect
 Description: A WordPress plugin to protect your AdSense ads from unusual click bombings and invalid clicks
 Author: Saumya Majumder
 Author URI: https://www.isaumya.com/
-Version: 1.2.3
+Version: 1.2.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: aicp
@@ -13,7 +13,7 @@ Domain Path: /languages
 */
 
 /*
-Copyright 2012-2016 by Saumya Majumder 
+Copyright 2012-2020 by Saumya Majumder 
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -93,23 +93,23 @@ if( ! class_exists( 'AICP' ) ) {
 	    	add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 	    	add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ) );
 	    	add_action( 'wp_ajax_process_data', array( $this, 'process_data' ) );
-			add_action( 'wp_ajax_nopriv_process_data', array( $this, 'process_data' ) );
+				add_action( 'wp_ajax_nopriv_process_data', array( $this, 'process_data' ) );
 
-			$aicpAdminOBJ = new AICP_ADMIN();
-			// Handeling the calls for wp-admin side
-			add_action( 'plugins_loaded', array( $aicpAdminOBJ, 'table_structure_update' ) );
-			add_action( 'admin_enqueue_scripts', array( $aicpAdminOBJ, 'admin_scripts' ) );
-			add_action( 'wp_dashboard_setup', array( $aicpAdminOBJ, 'aicp_dashboard' ) );
-			/* First lets initialize an admin settings link inside WP dashboard */
-			/* It will show under the SETTINGS section */
-			add_action( 'admin_menu', array( $aicpAdminOBJ, 'create_admin_menu' ) );
-			// Register page options
-	    	add_action( 'admin_init', array( $aicpAdminOBJ, 'register_page_options' ) );
-	    	// Admin notice
-	    	add_action( 'admin_notices', array( $aicpAdminOBJ, 'show_admin_notice' ) );
-	    	// Welcome Donate Notice
-	    	add_action( 'wp_ajax_handle_aicp_donate_notice', array( $aicpAdminOBJ, 'handle_aicp_donate_notice' ) );
-			add_action( 'wp_ajax_nopriv_handle_aicp_donate_notice', array( $aicpAdminOBJ, 'handle_aicp_donate_notice' ) );
+				$aicpAdminOBJ = new AICP_ADMIN();
+				// Handeling the calls for wp-admin side
+				add_action( 'plugins_loaded', array( $aicpAdminOBJ, 'table_structure_update' ) );
+				add_action( 'admin_enqueue_scripts', array( $aicpAdminOBJ, 'admin_scripts' ) );
+				add_action( 'wp_dashboard_setup', array( $aicpAdminOBJ, 'aicp_dashboard' ) );
+				/* First lets initialize an admin settings link inside WP dashboard */
+				/* It will show under the SETTINGS section */
+				add_action( 'admin_menu', array( $aicpAdminOBJ, 'create_admin_menu' ) );
+				// Register page options
+				add_action( 'admin_init', array( $aicpAdminOBJ, 'register_page_options' ) );
+				// Admin notice
+				add_action( 'admin_notices', array( $aicpAdminOBJ, 'show_admin_notice' ) );
+				// Welcome Donate Notice
+				add_action( 'wp_ajax_handle_aicp_donate_notice', array( $aicpAdminOBJ, 'handle_aicp_donate_notice' ) );
+				add_action( 'wp_ajax_nopriv_handle_aicp_donate_notice', array( $aicpAdminOBJ, 'handle_aicp_donate_notice' ) );
 	    	// Hourly cleanup job to delete blocked users which is more than 7 days
 	    	add_action( 'aicp_hourly_cleanup', array( $aicpAdminOBJ, 'do_this_hourly' ) );
 	    	// Adding settings link to the installed plugin page
@@ -196,9 +196,9 @@ if( ! class_exists( 'AICP' ) ) {
 	    	$aicpAdminOBJ->fetch_data();
 
 	    	/* JS */
-	    	wp_register_script( 'js-cookie', plugins_url( '/assets/js/js.cookie.min.js' , __FILE__ ), array(), '2.1.3', true );
+	    	wp_register_script( 'js-cookie', plugins_url( '/assets/js/js.cookie.min.js' , __FILE__ ), array(), '3.0.0', true );
 	    	wp_enqueue_script( 'js-cookie' );
-	    	wp_register_script( 'js-iframe-tracker', plugins_url( '/assets/js/jquery.iframetracker.min.js' , __FILE__ ), array( 'jquery' ), '1.1.0', true );
+	    	wp_register_script( 'js-iframe-tracker', plugins_url( '/assets/js/jquery.iframetracker.min.js' , __FILE__ ), array( 'jquery' ), '2.1.0', true );
 	    	wp_enqueue_script( 'js-iframe-tracker' );
 
 	    	wp_register_script( 'aicp', plugins_url( '/assets/js/aicp.min.js' , __FILE__ ) , array( 'jquery', 'js-cookie', 'js-iframe-tracker' ), '1.0', true );
@@ -231,7 +231,7 @@ if( ! class_exists( 'AICP' ) ) {
 	    	$ip = sanitize_text_field( $_POST['ip'] );
 	    	$countryName = sanitize_text_field( $_POST['countryName'] );
 	    	$countryCode = sanitize_text_field( $_POST['countryCode'] );
-	    	$clickCount = sanitize_text_field( $_POST['click_count'] );
+	    	$clickCount = sanitize_text_field( $_POST['aicp_click_count'] );
 
 	    	//Now it's time to insert the data into the database
 	    	$wpdb->insert( 
