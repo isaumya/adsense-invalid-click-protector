@@ -10,7 +10,7 @@
 	}
 }(this, function (jQuery) {
 
-/*!
+/*
  * jQuery iframe click tracking plugin
  *
  * @author Vincent Paré
