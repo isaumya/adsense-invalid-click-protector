@@ -97,7 +97,7 @@ if (!class_exists('AICP_ADMIN')) {
         esc_html__('AICP - Banned User Details', 'aicp'),
         esc_html__('Banned User Details', 'aicp'),
         'manage_options',
-        'aicp_banned_user_details',
+        AICP_BANNED_PAGE_SLUG,
         array($this, 'banned_user_details')
       );
     }
@@ -108,6 +108,10 @@ if (!class_exists('AICP_ADMIN')) {
      **/
     public function show_admin_notice()
     {
+      if (!current_user_can('manage_options')) {
+        return;
+      }
+
       settings_errors('aicp_settings_options');
 
       $welcome_notice_curr_state = get_option('aicp_donate_notice');
@@ -148,6 +152,9 @@ if (!class_exists('AICP_ADMIN')) {
     public function handle_aicp_donate_notice()
     {
       check_ajax_referer('aicp_wn_nonce', 'nonce');
+      if (!current_user_can('manage_options')) {
+        wp_die(esc_html__('You are not allowed to perform this action.', 'aicp'));
+      }
       update_option('aicp_donate_notice', 'hide');
       $result = get_option('aicp_donate_notice');
       return $result;
@@ -567,13 +574,15 @@ if (!class_exists('AICP_ADMIN')) {
       $aicpOBJ = new AICP();
       if (('delete' === $bannedUserTableOBJ->current_action()) && isset($_REQUEST['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['nonce'])), 'delete_banned_user')) {
         global $wpdb;
-        $fetchedID = sanitize_text_field($_REQUEST['id']);
-        if (is_array($fetchedID)) { // for bulk operation arry will return
+        $rawID = isset($_REQUEST['id']) ? wp_unslash($_REQUEST['id']) : '';
+        if (is_array($rawID)) { // for bulk operation an array will return
+          $fetchedID = array_filter(array_map('absint', $rawID));
           $selectedID = implode(',', array_fill(0, count($fetchedID), '%d'));
-        } else { //for singel delete just the id will return
-          $selectedID = '%d';
+        } else { //for single delete just the id will return
+          $fetchedID = absint($rawID);
+          $selectedID = $fetchedID ? '%d' : '';
         }
-        if (empty($selectedID)) {
+        if (empty($fetchedID) || empty($selectedID)) {
           $this->delete_notice(false);
         } else {
           $query = $wpdb->prepare(
@@ -595,7 +604,7 @@ if (!class_exists('AICP_ADMIN')) {
         $bannedUserTableOBJ->prepare_items();
         ?>
         <form method="post">
-          <input type="hidden" name="page" value="aicp_banned_user_details">
+          <input type="hidden" name="page" value="<?php echo esc_attr(AICP_BANNED_PAGE_SLUG); ?>">
           <?php
           $bannedUserTableOBJ->search_box('search', 'search_id');
           $bannedUserTableOBJ->display();
