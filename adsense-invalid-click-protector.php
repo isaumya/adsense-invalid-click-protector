@@ -5,7 +5,7 @@ Plugin URI: https://wordpress.org/plugins/ad-invalid-click-protector/
 Description: A WordPress plugin to protect your AdSense ads from unusual click bombings and invalid clicks
 Author: Saumya Majumder
 Author URI: https://acnam.com/
-Version: 1.3.1
+Version: 1.3.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
