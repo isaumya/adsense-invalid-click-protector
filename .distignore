@@ -5,3 +5,8 @@
 .gitattributes
 README.md
 .DS_Store
+.claude
+aicp-admin-interface.css
+aicp.js
+jquery.iframetracker.js
+js.cookie.js
