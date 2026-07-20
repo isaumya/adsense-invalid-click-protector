@@ -5,7 +5,7 @@ Plugin URI: https://wordpress.org/plugins/ad-invalid-click-protector/
 Description: A WordPress plugin to protect your AdSense ads from unusual click bombings and invalid clicks
 Author: Saumya Majumder
 Author URI: https://acnam.com/
-Version: 1.3.0
+Version: 1.3.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -26,6 +26,7 @@ if (!class_exists('AICP_ADMIN')) {
 /* Define Constants */
 define('AICP_BASE', plugin_basename(__FILE__));
 define('AICP_DIR_URL', plugin_dir_url(__FILE__));
+define('AICP_BANNED_PAGE_SLUG', 'aicp_banned_user_details');
 
 /* Let's handle the plugin setup */
 register_activation_hook(__FILE__, array('AICP_SETUP', 'on_activation'));
@@ -93,9 +94,8 @@ if (!class_exists('AICP')) {
       add_action('admin_init', array($aicpAdminOBJ, 'register_page_options'));
       // Admin notice
       add_action('admin_notices', array($aicpAdminOBJ, 'show_admin_notice'));
-      // Welcome Donate Notice
+      // Welcome Donate Notice (admin-only, so no nopriv hook is registered)
       add_action('wp_ajax_handle_aicp_donate_notice', array($aicpAdminOBJ, 'handle_aicp_donate_notice'));
-      add_action('wp_ajax_nopriv_handle_aicp_donate_notice', array($aicpAdminOBJ, 'handle_aicp_donate_notice'));
       // Hourly cleanup job to delete blocked users which is more than 7 days
       add_action('aicp_hourly_cleanup', array($aicpAdminOBJ, 'do_this_hourly'));
       // Adding settings link to the installed plugin page
@@ -117,38 +117,49 @@ if (!class_exists('AICP')) {
 
     /**
      * Function to fetch visitor's IP address
-     * @return Visitor's IP address
+     * @return Visitor's IP address (empty string if none could be determined)
      **/
     public function visitor_ip()
     {
-      $ipArr = array();
+      // Cloudflare sets this to the real client IP; it's always a single value
+      // (not a comma-separated chain) so there's no first-vs-last ambiguity.
+      if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+        $ip = trim(sanitize_text_field($_SERVER['HTTP_CF_CONNECTING_IP']));
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
+          return $ip;
+        }
+      }
 
-      foreach (array('HTTP_CF_CONNECTING_IP', 'HTTP_X_ORIGINATING_IP', 'HTTP_X_REMOTE_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR') as $key) {
-        if (array_key_exists($key, $_SERVER) === true) {
-          foreach (explode(',', sanitize_text_field($_SERVER[$key])) as $ip) {
-            $ip = trim($ip); // just to be safe
+      // REMOTE_ADDR is the actual TCP peer address and can never be spoofed by
+      // the client. Trust it immediately whenever it's a real public IP (the
+      // common no-reverse-proxy case never touches the headers below at all).
+      if (!empty($_SERVER['REMOTE_ADDR'])) {
+        $ip = trim($_SERVER['REMOTE_ADDR']);
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
+          return $ip;
+        }
+      }
 
-            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
-              array_push($ipArr, $ip);
-              //return $ip;
-            }
+      // We only get here when REMOTE_ADDR is itself private/reserved, i.e. the
+      // request passed through a local reverse proxy/load balancer. For
+      // multi-value forwarding headers, take the LAST entry: proxies that
+      // append via a directive like nginx's $proxy_add_x_forwarded_for put
+      // their own observed peer address there, which the client can't forge.
+      // Trusting the first entry instead (as naive implementations do) would
+      // let an attacker inject an arbitrary IP at the front of the chain.
+      foreach (array('HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'HTTP_CLIENT_IP') as $key) {
+        if (empty($_SERVER[$key])) {
+          continue;
+        }
+        $ipList = array_reverse(array_map('trim', explode(',', sanitize_text_field($_SERVER[$key]))));
+        foreach ($ipList as $ip) {
+          if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
+            return $ip;
           }
         }
       }
 
-      $currentIP = '';
-      $actualIP = '';
-
-      foreach ($ipArr as $ip) {
-        if ($ip !== $_SERVER['SERVER_ADDR']) {
-          if ($currentIP !== $ip) {
-            $currentIP = $ip;
-            $actualIP = $ip;
-          }
-        }
-      }
-
-      return $actualIP;
+      return '';
     }
 
     /**
@@ -226,11 +237,24 @@ if (!class_exists('AICP')) {
       global $wpdb;
       check_ajax_referer('aicp_nonce', 'nonce');
 
-      //Let's grab the data from the AJAX POST request
-      $ip = sanitize_text_field($_POST['ip']);
-      $countryName = sanitize_text_field($_POST['countryName']);
-      $countryCode = sanitize_text_field($_POST['countryCode']);
-      $clickCount = sanitize_text_field($_POST['aicp_click_count']);
+      //Always derive the visitor IP server-side, never trust the client-supplied value
+      $ip = $this->visitor_ip();
+      if (empty($ip)) {
+        wp_send_json_error('invalid_ip');
+      }
+
+      //Enforce the configured click threshold server-side before banning anyone
+      $aicpAdminOBJ = new AICP_ADMIN();
+      $aicpAdminOBJ->fetch_data();
+      $clickCount = isset($_POST['aicp_click_count']) ? intval($_POST['aicp_click_count']) : 0;
+      if ($clickCount < intval($aicpAdminOBJ->click_limit)) {
+        wp_send_json_error('threshold_not_met');
+      }
+
+      //Don't insert duplicate rows if this IP is already banned
+      if ($this->is_ip_banned($ip)) {
+        wp_send_json_success();
+      }
 
       //Now it's time to insert the data into the database
       $wpdb->insert(
@@ -241,6 +265,19 @@ if (!class_exists('AICP')) {
           'timestamp' => current_time('mysql')
         )
       );
+
+      wp_send_json_success();
+    }
+
+    /**
+     * Function to check if a given IP address already has a ban record
+     * @return bool true if the IP is present in the ban table
+     **/
+    public function is_ip_banned($ip)
+    {
+      global $wpdb;
+      $match = $wpdb->get_var($wpdb->prepare("SELECT COUNT(id) FROM {$this->table_name} WHERE ip = %s", $ip));
+      return $match > 0;
     }
   } // AICP Class Ends
 } //end of checking if AICP class exists
@@ -253,12 +290,11 @@ if (!class_exists('AICP')) {
 if (!function_exists('aicp_can_see_ads')) {
   function aicp_can_see_ads()
   {
-    global $wpdb;
     $flag = 0;
     $aicpOBJ = new AICP();
     $visitorIP = $aicpOBJ->visitor_ip();
 
-    $match = $wpdb->get_var("SELECT COUNT(id) FROM $aicpOBJ->table_name WHERE ip = '$visitorIP'");
+    $match = $aicpOBJ->is_ip_banned($visitorIP);
 
     $fetched_data = get_option('aicp_settings_options');
     $blocked_countries = sanitize_text_field(trim($fetched_data['ban_country_list']));
@@ -279,7 +315,7 @@ if (!function_exists('aicp_can_see_ads')) {
       if ($flag > 0) { // This means that the user is visiting the site from a banned country
         return false; // No visitor cannot see ads as he is in our block list
       } else { // This means that the user is not visiting from a banned country
-        if ($match > 0) { //So, it's time to check if the visitor's IP is blocked or not
+        if ($match) { //So, it's time to check if the visitor's IP is blocked or not
           return false; // No visitor cannot see ads as he is in our block list
         } else {
           return true; // Yes, he can
@@ -287,7 +323,7 @@ if (!function_exists('aicp_can_see_ads')) {
       }
     } else {
       //This section will run when there is no country ban, so there is only IP based ban
-      if ($match > 0) {
+      if ($match) {
         return false; // No visitor cannot see ads as he is in our block list
       } else {
         return true; // Yes, he can
