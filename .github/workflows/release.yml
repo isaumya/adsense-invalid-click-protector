@@ -80,6 +80,10 @@ jobs:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SLUG: ${{ env.plugin_slug }}
+          # On workflow_dispatch, GITHUB_REF is a branch (refs/heads/...), not a tag, so the
+          # action can't derive a clean VERSION from it. Force a safe dummy value in that case;
+          # on a real release, leave VERSION unset so the action derives it from the release tag.
+          VERSION: ${{ github.event_name == 'workflow_dispatch' && format('{0}-dryrun-{1}', env.PLUGIN_VERSION, github.run_number) || '' }}
 
       - name: Save ZIP to Release
         if: github.event_name == 'release'
