@@ -36,8 +36,17 @@ if (!class_exists('AICP_BANNED_USER_TABLE')) {
 
     public function column_ip($item)
     {
+      $delete_url = add_query_arg(
+        array(
+          'page'   => AICP_BANNED_PAGE_SLUG,
+          'action' => 'delete',
+          'id'     => $item->id,
+          'nonce'  => wp_create_nonce('delete_banned_user'),
+        ),
+        admin_url('admin.php')
+      );
       $actions = array(
-        'delete'    => sprintf('<a class="aicp_delete" href="?page=%s&action=%s&id=%s&nonce=%s">Delete</a>', sanitize_text_field($_REQUEST['page']), 'delete', esc_attr($item->id), wp_create_nonce('delete_banned_user')),
+        'delete' => sprintf('<a class="aicp_delete" href="%s">Delete</a>', esc_url($delete_url)),
       );
 
       return sprintf('%1$s %2$s', esc_attr($item->ip), $this->row_actions($actions));
@@ -95,9 +104,13 @@ if (!class_exists('AICP_BANNED_USER_TABLE')) {
     public function prepare_items()
     {
       global $wpdb;
-      $search = (isset($_REQUEST['s'])) ? sanitize_text_field($_REQUEST['s']) : false;
-      $do_search = ($search) ? " WHERE " . $this->table_name . ".ip LIKE '%" . esc_sql($wpdb->esc_like($search)) . "%' " : '';
-      $query = $wpdb->prepare("SELECT * FROM %s %s ORDER BY timestamp DESC", $this->table_name, $do_search);
+      $search = isset($_REQUEST['s']) ? sanitize_text_field(wp_unslash($_REQUEST['s'])) : '';
+      if ($search !== '') {
+        $like = '%' . $wpdb->esc_like($search) . '%';
+        $query = $wpdb->prepare("SELECT * FROM {$this->table_name} WHERE ip LIKE %s ORDER BY timestamp DESC", $like);
+      } else {
+        $query = "SELECT * FROM {$this->table_name} ORDER BY timestamp DESC";
+      }
       $this->banned_users = $wpdb->get_results($query);
 
       $columns = $this->get_columns();
