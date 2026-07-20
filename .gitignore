@@ -18,3 +18,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+.claude/
+.vscode/
+.DS_Store
