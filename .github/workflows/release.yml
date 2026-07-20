@@ -70,7 +70,12 @@ jobs:
         run: wp package install wp-cli/dist-archive-command:v3.1.0
 
       - name: Create Plugin ZIP
-        run: wp dist-archive . ${{ env.plugin_slug }}.zip --plugin-dirname=${{ env.plugin_slug }}
+        # NOTE: the "./" prefix is required. dist-archive-command special-cases a bare
+        # filename target (no directory component) and places the archive in the PARENT
+        # of the source directory instead of the current directory - see get_file_paths_and_names()
+        # in https://github.com/wp-cli/dist-archive-command. Without "./" the zip ends up
+        # outside $GITHUB_WORKSPACE and later steps can't find it.
+        run: wp dist-archive . ./${{ env.plugin_slug }}.zip --plugin-dirname=${{ env.plugin_slug }}
 
       - name: Deploy to WordPress.org SVN
         uses: 10up/action-wordpress-plugin-deploy@stable
