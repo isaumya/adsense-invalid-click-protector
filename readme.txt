@@ -7,9 +7,10 @@ Tags: adsense, invalid, click, isaumya, aicp
 Requires at least: 4.9
 Requires PHP: 7.4
 Tested up to: 6.5
-Stable Tag: 1.3.1
+Stable Tag: 1.3.2
 
-License: GNU Version 2 or Any Later Version
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 One plugin to save your AdSense account from Click Bombings and Invalid Click Activities
 
@@ -224,6 +225,9 @@ No, you are not supposed to click on your own ads. If you want you can use adblo
 This plugin doesn't work on mobile devices such as smartphones and tablets, because this hardware uses a touchscreen instead of a mouse as click input. This design makes the boundary monitoring trick ineffective.
 
 == Changelog ==
+
+= 1.3.2, July 21, 2026 =
+* Fixed the readme.txt License field so it uses a WordPress.org-recognized license string, resolving the "The License field could not be validated" warning shown after the 1.3.1 SVN import.
 
 = 1.3.1, July 21, 2026 =
 * Fixed a security issue where the click-tracking AJAX endpoint trusted a client-supplied IP address instead of deriving it server-side, which could let an attacker poison the blocked-IP list with arbitrary victim IPs and suppress ads for them.
