@@ -4,6 +4,7 @@
 .gitignore
 .gitattributes
 README.md
+LICENSE
 .DS_Store
 .claude
 aicp-admin-interface.css
